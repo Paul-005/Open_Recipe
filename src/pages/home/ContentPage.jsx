@@ -5,7 +5,6 @@ import bannerImg from "../../assets/cooking.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
-import { motion } from "framer-motion";
 
 export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
@@ -128,14 +127,14 @@ export default function ContentEditingPage() {
               placeholder="Recipe Here"
             />
           </div>
-          <motion.button
+          <button
             className="  btn btn-primary m-4 "
             type="submit"
             onClick={publishContent}
             whileHover={{ opacity: 0.5, scale: 1.2 }}
           >
             Publish
-          </motion.button>
+          </button>
         </main>
       </div>{" "}
       <Footer />

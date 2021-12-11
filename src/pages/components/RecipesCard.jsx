@@ -1,9 +1,7 @@
-import { motion } from "framer-motion";
-
 export default function Recipecard({ data }) {
   return (
     <div class="col">
-      <motion.div class="card shadow-sm" whileHover={{ scale: 1.1 }}>
+      <div class="card shadow-sm" whileHover={{ scale: 1.1 }}>
         <div class="card-body">
           <div className="card-title text-center fw-bold h2">
             {data.recipeName}
@@ -21,7 +19,7 @@ export default function Recipecard({ data }) {
             <small class="text-muted">9 mins</small>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
