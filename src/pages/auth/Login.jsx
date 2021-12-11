@@ -7,6 +7,7 @@ import "../../styles/auth/Login.css";
 import Logo from "../../assets/cook-book.png";
 
 import { useHistory } from "react-router-dom";
+import { React_Backend } from "../backend_url";
 
 export default function LoginPage() {
   const [email, setemail] = useState("");
@@ -21,7 +22,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     axios
-      .post("https://ir77r.sse.codesandbox.io/LoginAccount", {
+      .post(`${React_Backend}/LoginAccount`, {
         email,
         password
       })

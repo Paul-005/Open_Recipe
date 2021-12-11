@@ -1,17 +1,25 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { React_Backend } from "../backend_url";
 import Footer from "../components/Footer";
 import Navbar from "../components/NavBar";
 import Recipecard from "../components/RecipesCard";
 
 export default function Recipes() {
+  const history = useHistory();
+
   const [RecipesData, setRecipesData] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    getRecipes();
+  }, []);
+
+  const getRecipes = () => {
     axios
-      .get("https://ir77r.sse.codesandbox.io/recipes")
+      .get(`${React_Backend}/recipes`)
       .then((res) => {
         setRecipesData(res.data);
         console.log(res.data);
@@ -21,7 +29,7 @@ export default function Recipes() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  };
 
   return (
     <>

@@ -5,6 +5,7 @@ import bannerImg from "../../assets/cooking.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { React_Backend } from "../backend_url";
 
 export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
@@ -45,7 +46,7 @@ export default function ContentEditingPage() {
         headers: {
           token: localStorage.getItem("jwt")
         },
-        url: "https://ir77r.sse.codesandbox.io/content-edit",
+        url: `${React_Backend}/content-edit`,
         data: {
           recipeName,
           Incredients,

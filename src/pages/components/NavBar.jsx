@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
+import cookingIcon from "../../assets/cooking.png";
+
 export default function Navbar() {
   useEffect(() => {
     if (localStorage.getItem("jwt") !== null) {
@@ -31,10 +33,10 @@ export default function Navbar() {
       <div className="container-fluid">
         <div className="navbar-brand" onClick={() => history.push("")}>
           <img
-            src="https://cdn-icons-png.flaticon.com/512/3075/3075929.png"
+            src={cookingIcon}
             alt="logo"
             width="30"
-            height="24"
+            height="30"
             className="d-inline-block align-text-top mx-2"
           />
           Open Recipe

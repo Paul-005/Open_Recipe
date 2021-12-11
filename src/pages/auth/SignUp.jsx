@@ -6,7 +6,8 @@ import Navbar from "../components/NavBar";
 import "../../styles/auth/Login.css";
 import Logo from "../../assets/cook-book.png";
 
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { React_Backend } from "../backend_url";
 
 export default function SignUp() {
   const [email, setemail] = useState("");
@@ -26,7 +27,7 @@ export default function SignUp() {
     } else {
       setLoading(true);
       axios
-        .post("https://ir77r.sse.codesandbox.io/CreateAccount", {
+        .post(`${React_Backend}/CreateAccount`, {
           email,
           password,
           name
