@@ -31,7 +31,7 @@ export default function Navbar() {
       className="navbar navbar-expand-lg navbar-dark bg-dark"
     >
       <div className="container-fluid">
-        <div className="navbar-brand" onClick={() => history.push("")}>
+        <div className="navbar-brand" onClick={() => history.push("/")}>
           <img
             src={cookingIcon}
             alt="logo"
