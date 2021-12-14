@@ -60,7 +60,13 @@ export default function SignUp() {
       <h1 className="title fw-bold ">Open Recipe</h1>
       <main className="form-signin ">
         <form>
-          <img className="mb-4" src={Logo} alt="" width="85" height="85" />
+          <img
+            className="mb-4"
+            src="https://i.ibb.co/8PsvNSN/download.png"
+            alt="cook"
+            width="85"
+            height="85"
+          />
           <h1 className="h2 mb-3 fw-bold ">Please Sign Up</h1>
           {error && (
             <div class="alert alert-danger" role="alert">

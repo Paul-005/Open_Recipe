@@ -53,7 +53,13 @@ export default function LoginPage() {
       <h1 className="title ">Open Recipe</h1>
       <main className="form-signin ">
         <form>
-          <img className="mb-4" src={Logo} alt="" width="85" height="85" />
+          <img
+            className="mb-4"
+            src="https://i.ibb.co/8PsvNSN/download.png"
+            alt=""
+            width="85"
+            height="85"
+          />
           <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
           {error && (
             <div className="alert alert-danger" role="alert">

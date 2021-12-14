@@ -1,4 +1,8 @@
+import { useHistory } from "react-router-dom";
+
 export default function Recipecard({ data }) {
+  const history = useHistory();
+
   return (
     <div class="col">
       <div class="card shadow-sm" whileHover={{ scale: 1.1 }}>
@@ -9,7 +13,11 @@ export default function Recipecard({ data }) {
           <p class="card-text  ">{data.RecipeContent.substr(0, 300)}...</p>
           <div class="d-flex justify-content-between align-items-center ">
             <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-outline-secondary">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                onClick={() => history.push(`/recipe/item/${data._id}`)}
+              >
                 View
               </button>
               <button type="button" class="btn btn-sm btn-outline-secondary">
