@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import cookingIcon from "../../assets/cooking.png";
-
 export default function Navbar() {
   useEffect(() => {
     if (localStorage.getItem("jwt") !== null) {
@@ -33,7 +31,7 @@ export default function Navbar() {
       <div className="container-fluid">
         <div className="navbar-brand" onClick={() => history.push("/")}>
           <img
-            src={cookingIcon}
+            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
             alt="logo"
             width="30"
             height="30"

@@ -1,13 +1,9 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 
 import CardImg from "../components/Cards";
-import Carousel from "../components/Carousel";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
-
-import bannerImg from "../../assets/cooking.png";
 
 export default function Home() {
   // const [items, setItems] = useState([]);
@@ -55,7 +51,7 @@ export default function Home() {
               </p>{" "}
             </div>
             <img
-              src={bannerImg}
+              src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
               className="d-block img-fluid m-3  "
               alt="..."
               // width="600"

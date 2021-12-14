@@ -12,15 +12,6 @@ export default function CardImg({ items }) {
           <h5 className="card-title text-center">{items.name}</h5>
 
           <p className="lead">{items.content.substr(0, 80)}....</p>
-
-          <button
-            type="button"
-            className="btn btn-primary"
-            whileTap={{ scale: 0.8 }}
-            onClick={() => history.push(`/details/${items.content}`)}
-          >
-            View More
-          </button>
         </div>
       </div>
     </div>
