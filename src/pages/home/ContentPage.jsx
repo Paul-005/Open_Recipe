@@ -66,7 +66,7 @@ export default function ContentEditingPage() {
           <div className="py-5 text-center">
             <img
               className="d-block mx-auto mb-4"
-              src={bannerImg}
+              src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
               alt=""
               width="100"
               height="100"

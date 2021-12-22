@@ -5,7 +5,7 @@ export default function Recipecard({ data }) {
 
   return (
     <div class="col">
-      <div class="card shadow-sm" whileHover={{ scale: 1.1 }}>
+      <div class="card shadow-sm">
         <div class="card-body">
           <div className="card-title text-center fw-bold h2">
             {data.recipeName}
@@ -16,7 +16,7 @@ export default function Recipecard({ data }) {
               <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"
-                onClick={() => history.push(`/recipe/item/${data._id}`)}
+                onClick={() => history.push(`/recipe/${data._id}`)}
               >
                 View
               </button>
