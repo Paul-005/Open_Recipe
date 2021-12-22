@@ -92,8 +92,6 @@ export default function OneRecipe() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </>
   );
 }

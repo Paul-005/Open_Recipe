@@ -73,16 +73,7 @@ export default function Recipes() {
         </div>
       </main>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: "0",
-          width: "100%",
-          zIndex: "-1"
-        }}
-      >
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }

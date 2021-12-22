@@ -36,7 +36,6 @@ export default function Home() {
 
   return (
     <div>
-      <Navbar />
       {/* Food banner */}
       <header className="masthead bg-dark ">
         <div className="container p-5">

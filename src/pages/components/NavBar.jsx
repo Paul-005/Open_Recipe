@@ -14,6 +14,9 @@ export default function Navbar() {
 
   const signOut = () => {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("username");
+    localStorage.removeItem("name");
+    localStorage.removeItem("user");
     history.push("/login");
   };
 
@@ -108,6 +111,14 @@ export default function Navbar() {
             )}
             {authState && (
               <>
+                <li className="nav-item">
+                  <div
+                    className="nav-link  "
+                    onClick={() => history.push("/profile")}
+                  >
+                    Profile
+                  </div>
+                </li>
                 <div class="d-flex">
                   <span class="navbar-text navbar-brand container-fluid">
                     {name}

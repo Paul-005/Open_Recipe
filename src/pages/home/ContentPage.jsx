@@ -60,7 +60,6 @@ export default function ContentEditingPage() {
 
   return (
     <>
-      <Navbar />
       <div className="container">
         <main>
           <div className="py-5 text-center">
