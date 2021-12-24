@@ -12,14 +12,6 @@ export default function Navbar() {
   const [authState, setauthState] = useState(false);
   const [name, setname] = useState("");
 
-  const signOut = () => {
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("username");
-    localStorage.removeItem("name");
-    localStorage.removeItem("user");
-    history.push("/login");
-  };
-
   const history = useHistory();
 
   return (
@@ -123,12 +115,6 @@ export default function Navbar() {
                   <span class="navbar-text navbar-brand container-fluid">
                     {name}
                   </span>
-                </div>
-                <div
-                  onClick={signOut}
-                  className="nav-link btn btn-light text-dark fw-bold"
-                >
-                  SignOut
                 </div>
               </>
             )}

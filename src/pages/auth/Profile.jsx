@@ -1,9 +1,55 @@
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
+import { React_Backend } from "../backend_url";
 
 export default function ProfilePage() {
   const [user, setUser] = useState({});
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // useState for edit profile
+  const [newName, setnewName] = useState("");
+  const [oldPass, setOldPass] = useState("");
+  const [newPass, setnewPass] = useState("");
+
+  const history = useHistory();
+
+  const reqChangePassword = () => {
+    setLoading(true);
+    axios
+      .post({
+        url: `${React_Backend}`,
+        headers: {
+          token: localStorage.getItem("jwt")
+        },
+        body: {
+          oldPass,
+          newPass
+        }
+      })
+      .then((res) => setLoading(false))
+      .catch((err) => setError(err.message));
+  };
+
+  const reqChangeName = () => {
+    setLoading(true);
+    axios
+      .post({
+        url: `${React_Backend}`,
+        headers: {
+          token: localStorage.getItem("jwt")
+        },
+        body: {
+          newName
+        }
+      })
+      .then((res) => setLoading(false))
+      .catch((err) => setError(err.message));
+  };
 
   const getUserInfo = () => {
     const json = localStorage.getItem("user");
@@ -11,9 +57,170 @@ export default function ProfilePage() {
     setUser(parsedData);
   };
 
+  const signOut = () => {
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("username");
+    localStorage.removeItem("name");
+    localStorage.removeItem("user");
+    history.push("/login");
+  };
+
   useEffect(() => {
     getUserInfo();
   }, []);
+
+  const editProfileOptionModal = (
+    // Modal
+    <>
+      <div
+        class="modal fade"
+        id="editProfileOptionModal"
+        tabindex="0"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">
+                Edit Profie
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3 row">
+                <div className="btn">
+                  <button
+                    className="btn btn-warning"
+                    data-bs-toggle="modal"
+                    data-bs-target="#changePassword"
+                  >
+                    Change Password
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#changeName"
+                  >
+                    Edit Name
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  const changePassword = (
+    <div
+      class="modal fade"
+      id="changePassword"
+      tabindex="-1"
+      aria-labelledby="changePassword"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePassword">
+              Change Password
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <label htmlFor="password">Enter Current Password</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="current password"
+              onChange={(e) => setOldPass(e.target.value)}
+            />
+            <div className="my-3" />
+            <label htmlFor="password">Enter New Password</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="new password"
+              onChange={(e) => setnewPass(e.target.value)}
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary">
+              Save changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const changeName = (
+    <>
+      <div
+        class="modal fade"
+        id="changeName"
+        tabindex="-1"
+        aria-labelledby="changeName"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="changePassword">
+                Change Name
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <label htmlFor="password">Enter New Name</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Enter New name"
+                onChange={(e) => setnewName(e.target.value)}
+              />
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="button" class="btn btn-primary">
+                Save changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -44,7 +251,10 @@ export default function ProfilePage() {
             width="100"
             alt="user profile"
           />
-          <span class="name mt-3 h1">{user.name}</span>{" "}
+          <span class="name mt-3 h1">{user.name}</span>
+          <buttton className="btn btn-warning fw-bold" onClick={signOut}>
+            Sign Out
+          </buttton>
           <span class="idd lead">{user.email}</span>
           <div class="d-flex flex-row justify-content-center align-items-center mt-3">
             {" "}
@@ -52,84 +262,21 @@ export default function ProfilePage() {
               1069 <span class="follow">Followers</span>
             </span>{" "}
           </div>
-          <div class=" px-2 rounded mt-4 date ">
-            <span class="join">Joined May,2021</span>{" "}
-          </div>
-          {/* <!-- Button trigger modal --> */}
+
+          {/* Toast for asking change pwd or edit name. */}
+
           <button
             type="button"
             class="btn btn-primary"
             data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
+            data-bs-target="#editProfileOptionModal"
           >
-            Edit Profie
+            Edit Profile
           </button>
-          {/* <!-- Modal --> */}
-          <div
-            class="modal fade"
-            id="exampleModal"
-            tabindex="-1"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">
-                    Edit Profie
-                  </h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div class="modal-body">
-                  <div class="mb-3 row">
-                    <div class="mb-3">
-                      <label
-                        for="inputPassword"
-                        class="col-sm-2 col-form-label"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        class="form-control"
-                        id="exampleFormControlInput1"
-                        placeholder="name@example.com"
-                      />
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label for="inputPassword" class="col-sm-2 col-form-label">
-                      Password
-                    </label>
-                    <div class="col-sm-10">
-                      <input
-                        type="password"
-                        class="form-control"
-                        id="inputPassword"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-primary">
-                    Save changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+
+          {editProfileOptionModal}
+          {changePassword}
+          {changeName}
         </div>
       </div>
     </>

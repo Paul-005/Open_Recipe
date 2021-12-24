@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 
 import CardImg from "../components/Cards";
-import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
 
 export default function Home() {
