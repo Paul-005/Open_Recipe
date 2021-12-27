@@ -1,5 +1,4 @@
 import Footer from "../components/Footer";
-import Navbar from "../components/NavBar";
 
 import bannerImg from "../../assets/cooking.png";
 import { useEffect, useState } from "react";

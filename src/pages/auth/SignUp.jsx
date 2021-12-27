@@ -2,7 +2,6 @@ import axios from "axios";
 import { useState } from "react";
 
 import "../../styles/auth/Login.css";
-import Navbar from "../components/NavBar";
 import "../../styles/auth/Login.css";
 import Logo from "../../assets/cook-book.png";
 
@@ -58,7 +57,6 @@ export default function SignUp() {
 
   return (
     <div className="text-center">
-      <Navbar />
       <h1 className="title fw-bold ">Open Recipe</h1>
       <main className="form-signin ">
         <form>

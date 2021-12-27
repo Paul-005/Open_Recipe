@@ -224,8 +224,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Navbar />
-
       {/* Section of Open Recipe */}
 
       <div className="py-5  text-center">

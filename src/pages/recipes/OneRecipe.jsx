@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 import Footer from "../components/Footer";
-import Navbar from "../components/NavBar";
 
 export default function OneRecipe() {
   const [recipeData, setrecipeData] = useState({});
@@ -39,7 +38,6 @@ export default function OneRecipe() {
 
   return (
     <>
-      <Navbar />
       <section className="py-5">
         <div className="container px-4 px-lg-5 my-5">
           <div className=" align-items-center justify-content-center">

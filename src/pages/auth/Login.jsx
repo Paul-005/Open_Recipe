@@ -50,7 +50,6 @@ export default function LoginPage() {
 
   return (
     <div className="text-center">
-      <Navbar />
       <h1 className="title ">Open Recipe</h1>
       <main className="form-signin ">
         <form>
