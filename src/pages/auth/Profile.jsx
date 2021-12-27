@@ -62,7 +62,7 @@ export default function ProfilePage() {
     localStorage.removeItem("username");
     localStorage.removeItem("name");
     localStorage.removeItem("user");
-    history.push("/login");
+    window.location.href = "/";
   };
 
   useEffect(() => {

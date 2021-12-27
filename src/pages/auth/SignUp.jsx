@@ -42,7 +42,7 @@ export default function SignUp() {
             localStorage.setItem("username", response.data.user.email);
             localStorage.setItem("name", response.data.user.name);
             localStorage.setItem("user", JSON.stringify(response.data.user));
-            history.push("/");
+            window.location.href = "/";
             seterror("");
             setLoading(false);
           }
@@ -67,7 +67,7 @@ export default function SignUp() {
             width="85"
             height="85"
           />
-          <h1 className="h2 mb-3 fw-bold ">Please Sign Up</h1>
+          <h1 className="h2 mb-3 fw-bold ">Sign Up</h1>
           {error && (
             <div class="alert alert-danger" role="alert">
               {error}
@@ -121,7 +121,7 @@ export default function SignUp() {
             onClick={() => history.push("/login")}
             className="mt-5 mb-3 text-muted"
           >
-            Already having acount? Login.
+            Already having acount? Login
           </p>
 
           <p className="mt-5 mb-3 text-muted">&copy; 2017–2021</p>

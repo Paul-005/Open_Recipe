@@ -21,7 +21,7 @@ export default function Navbar() {
         width: "100%",
         zIndex: "1"
       }}
-      className="navbar navbar-expand-lg navbar-dark bg-dark"
+      className="navbar navbar-expand-lg navbar-dark text-center bg-dark"
     >
       <div className="container-fluid">
         <div className="navbar-brand" onClick={() => history.push("/")}>

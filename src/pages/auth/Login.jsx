@@ -2,9 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 
 import "../../styles/auth/Login.css";
-import Navbar from "../components/NavBar";
 import "../../styles/auth/Login.css";
-import Logo from "../../assets/cook-book.png";
 
 import { useHistory } from "react-router-dom";
 import { React_Backend } from "../backend_url";
@@ -37,7 +35,7 @@ export default function LoginPage() {
           localStorage.setItem("username", response.data.user.email);
           localStorage.setItem("name", response.data.user.name);
           localStorage.setItem("user", JSON.stringify(response.data.user));
-          history.push("/");
+          window.location.href = "/";
           seterror("");
           setLoading(false);
         }
@@ -60,7 +58,7 @@ export default function LoginPage() {
             width="85"
             height="85"
           />
-          <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
+          <h1 className="h2 mb-3 fw-bold">Sign In</h1>
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
@@ -104,6 +102,12 @@ export default function LoginPage() {
           >
             Sign in
           </button>
+          <p
+            onClick={() => history.push("/signup")}
+            className="mt-5 mb-3 text-muted"
+          >
+            Don't Have An Account? Sign Up
+          </p>
           <p className="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
         </form>
       </main>
