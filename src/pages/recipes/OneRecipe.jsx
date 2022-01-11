@@ -67,9 +67,6 @@ export default function OneRecipe() {
                     2k likes
                   </div>
                 </div>
-                <button className="btn btn-warning bi-hand-thumbs-up-fill mx-2">
-                  Like
-                </button>
               </section>
 
               {/* Incredeints */}
@@ -86,6 +83,18 @@ export default function OneRecipe() {
                 <h1 className="h1 fw-bold text-warning my-2">Recipe Method</h1>
                 <p className="lead">{recipeData.RecipeContent}</p>
               </section>
+              <button className="btn btn-warning bi-hand-thumbs-up-fill mx-2">
+                Like
+              </button>
+            </div>
+            <div class="form-floating m-sm-5 ">
+              <input
+                type="text"
+                class="form-control"
+                id="floatingInput"
+                placeholder="type the message"
+              />
+              <label for="floatingInput">Send a comment</label>
             </div>
           </div>
         </div>
