@@ -39,12 +39,12 @@ export default function ProfilePage() {
     setLoading(true);
     axios
       .post({
-        url: `${React_Backend}`,
+        url: `https://lf4ge.sse.codesandbox.io/changeName`,
         headers: {
           token: localStorage.getItem("jwt")
         },
         body: {
-          newName
+          newName: "oiuorwe"
         }
       })
       .then((res) => setLoading(false))
@@ -67,6 +67,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getUserInfo();
+    reqChangeName();
   }, []);
 
   const editProfileOptionModal = (
@@ -212,7 +213,11 @@ export default function ProfilePage() {
               >
                 Close
               </button>
-              <button type="button" class="btn btn-primary">
+              <button
+                type="button"
+                onClick={reqChangeName}
+                class="btn btn-primary"
+              >
                 Save changes
               </button>
             </div>

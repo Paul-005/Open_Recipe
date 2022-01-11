@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 import Footer from "../components/Footer";
-import Navbar from "../components/NavBar";
 import Recipecard from "../components/RecipesCard";
 
 export default function Recipes() {
@@ -34,25 +33,25 @@ export default function Recipes() {
   return (
     <>
       <main>
-        <section class="py-5 text-center container">
-          <div class="row py-lg-5">
-            <div class="col-lg-6 col-md-8 mx-auto">
-              <h1 class="fw-light">Recipes</h1>
-              <p class="lead text-muted">
+        <section className="py-5 text-center container">
+          <div className="row py-lg-5">
+            <div className="col-lg-6 col-md-8 mx-auto">
+              <h1 className="fw-light">Recipes</h1>
+              <p className="lead text-muted">
                 Recipe made by others for you and others.
               </p>
             </div>
           </div>
         </section>
 
-        <div class="album py-5 bg-light">
-          <div class="container">
-            {error && <div className="alert alert-danger">{error}</div>}
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        <div className="album py-5 bg-light">
+          <div className="container">
+            {error && <div classNameName="alert alert-danger">{error}</div>}
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
               {loading && (
-                <div class="d-flex align-items-center">
+                <div className="d-flex align-items-center">
                   <div
-                    class="spinner-border ms-auto "
+                    className="spinner-border ms-auto "
                     style={{
                       height: "3rem",
                       width: "3rem",

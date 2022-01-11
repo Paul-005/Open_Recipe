@@ -9,7 +9,6 @@ import ContentEditingPage from "./pages/home/ContentPage";
 import Recipes from "./pages/recipes/recipes";
 import OneRecipe from "./pages/recipes/OneRecipe";
 import ProfilePage from "./pages/auth/Profile";
-import Footer from "./pages/components/Footer";
 import Navbar from "./pages/components/NavBar";
 
 export default function App() {
