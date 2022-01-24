@@ -1,6 +1,5 @@
 import Footer from "../components/Footer";
 
-import bannerImg from "../../assets/cooking.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
@@ -10,18 +9,36 @@ export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
+  const [fileImage, setfileImage] = useState(null);
+  const [imgUrl, setimgUrl] = useState("");
 
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    verifyUser();
-  }, []);
+  const imgEncoder = (e) => {
+    if (!fileImage) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(fileImage);
+    reader.onloadend = () => {
+      setimgUrl(reader.result);
+    };
+    reader.onerror = (e) => {
+      setError(e.message);
+    };
+  };
 
   function verifyUser() {
     if (!localStorage.getItem("jwt")) {
       history.push("/login");
     }
   }
+  useEffect(() => {
+    verifyUser();
+  }, []);
+
+  useEffect(() => {
+    imgEncoder();
+  }, [fileImage]);
 
   const history = useHistory();
 
@@ -36,10 +53,10 @@ export default function ContentEditingPage() {
       localStorage.getItem("name") == null ||
       localStorage.getItem("username") == null
     ) {
-      setError("Please RE Login To Retrieve Your Name And Email");
+      setError("Please Login To Retrieve Your Name And Email");
     } else {
       setError("");
-
+      setPending(true);
       axios({
         method: "post",
         headers: {
@@ -49,10 +66,14 @@ export default function ContentEditingPage() {
         data: {
           recipeName,
           Incredients,
-          RecipeContent
+          RecipeContent,
+          image: imgUrl
         }
       })
-        .then(() => history.push("/"))
+        .then(() => {
+          history.push("/");
+          setPending(false);
+        })
         .catch((e) => setError(e.message));
     }
   };
@@ -76,6 +97,17 @@ export default function ContentEditingPage() {
           {error && (
             <div class="alert alert-danger" role="alert">
               {error}
+            </div>
+          )}
+          {pending && (
+            <div className="d-flex justify-content-center">
+              <div
+                class="spinner-border"
+                style={{ height: 100, width: 100, color: "orange" }}
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
             </div>
           )}
 
@@ -113,6 +145,20 @@ export default function ContentEditingPage() {
               /> */}
             </div>
           </div>
+
+          <div class="mb-3">
+            <label for="formFile" class="form-label">
+              Add an Image
+            </label>
+            <input
+              class="form-control"
+              type="file"
+              id="formFile"
+              onChange={(e) => setfileImage(e.target.files[0])}
+            />
+          </div>
+
+          {fileImage && <img src={imgUrl} className="img-fluid" alt="chosen" />}
 
           <div className="mb-3">
             <label for="exampleFormControlTextarea1" className="form-label">

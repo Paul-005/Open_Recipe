@@ -2,10 +2,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { React_Backend } from "../backend_url";
-import Footer from "../components/Footer";
 
 export default function OneRecipe() {
   const [recipeData, setrecipeData] = useState({});
+  const [comment, setcomment] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,6 +23,24 @@ export default function OneRecipe() {
       .then((res) => {
         setrecipeData(res.data);
         console.log(res.data);
+        setLoading(false);
+        setError("");
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
+  const getOneRecipeComment = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    axios
+      .post(`${React_Backend}/recipes/${id}`, {
+        comment,
+        email: user.email
+      })
+      .then(() => {
         setLoading(false);
         setError("");
       })
@@ -87,14 +105,25 @@ export default function OneRecipe() {
                 Like
               </button>
             </div>
-            <div class="form-floating m-sm-5 ">
+            <div class="input-group form-floating m-sm-5 ">
               <input
                 type="text"
                 class="form-control"
                 id="floatingInput"
                 placeholder="type the message"
+                onChange={(e) => setcomment(e.target.value)}
               />
               <label for="floatingInput">Send a comment</label>
+              <button
+                class="btn btn-outline-primary"
+                onClick={getOneRecipeComment}
+              >
+                Send
+              </button>
+            </div>
+            <div className="container">
+              <span className="text-center text-primary">Comments</span>
+              <ul class="list-group"></ul>
             </div>
           </div>
         </div>
