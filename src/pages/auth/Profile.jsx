@@ -6,48 +6,7 @@ import { React_Backend } from "../backend_url";
 export default function ProfilePage() {
   const [user, setUser] = useState({});
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // useState for edit profile
-  const [newName, setnewName] = useState("");
-  const [oldPass, setOldPass] = useState("");
-  const [newPass, setnewPass] = useState("");
-
   const history = useHistory();
-
-  const reqChangePassword = () => {
-    setLoading(true);
-    axios
-      .post({
-        url: `${React_Backend}`,
-        headers: {
-          token: localStorage.getItem("jwt")
-        },
-        body: {
-          oldPass,
-          newPass
-        }
-      })
-      .then((res) => setLoading(false))
-      .catch((err) => setError(err.message));
-  };
-
-  const reqChangeName = () => {
-    setLoading(true);
-    axios
-      .post({
-        url: `https://lf4ge.sse.codesandbox.io/changeName`,
-        headers: {
-          token: localStorage.getItem("jwt")
-        },
-        body: {
-          newName: "oiuorwe"
-        }
-      })
-      .then((res) => setLoading(false))
-      .catch((err) => setError(err.message));
-  };
 
   const getUserInfo = () => {
     const json = localStorage.getItem("user");
@@ -65,7 +24,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getUserInfo();
-    reqChangeName();
   }, []);
 
   const editProfileOptionModal = (
@@ -117,114 +75,6 @@ export default function ProfilePage() {
     </>
   );
 
-  const changePassword = (
-    <div
-      class="modal fade"
-      id="changePassword"
-      tabindex="-1"
-      aria-labelledby="changePassword"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="changePassword">
-              Change Password
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <label htmlFor="password">Enter Current Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="current password"
-              onChange={(e) => setOldPass(e.target.value)}
-            />
-            <div className="my-3" />
-            <label htmlFor="password">Enter New Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="new password"
-              onChange={(e) => setnewPass(e.target.value)}
-            />
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button type="button" class="btn btn-primary">
-              Save changes
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const changeName = (
-    <>
-      <div
-        class="modal fade"
-        id="changeName"
-        tabindex="-1"
-        aria-labelledby="changeName"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="changePassword">
-                Change Name
-              </h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <label htmlFor="password">Enter New Name</label>
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Enter New name"
-                onChange={(e) => setnewName(e.target.value)}
-              />
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={reqChangeName}
-                class="btn btn-primary"
-              >
-                Save changes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
   return (
     <>
       {/* Users Profile Section  */}
@@ -242,42 +92,14 @@ export default function ProfilePage() {
           <buttton className="btn btn-warning fw-bold" onClick={signOut}>
             Sign Out
           </buttton>
-          <span class="idd lead">{user.email}</span>
-          <div class="d-flex flex-row justify-content-center align-items-center mt-3">
-            {" "}
-            <span class="number">
-              1069 <span class="follow">Followers</span>
-            </span>{" "}
-          </div>
-
-          <section>
-            <div className="w-100 ">
-              <ul class="list-group">
-                <li class="list-group-item list-group-item-primary">
-                  Beef Burger
-                </li>
-                <li class="list-group-item">A second item</li>
-                <li class="list-group-item">A third item</li>
-                <li class="list-group-item">A fourth item</li>
-                <li class="list-group-item">And a fifth one</li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Toast for asking change pwd or edit name. */}
+          <span class=" lead">{user.email}</span>
 
           <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#editProfileOptionModal"
+            onClick={() => history.push("/pro-payment")}
+            className="btn btn-dark fw-bold m-4"
           >
-            Edit Profile
+            Upgrade To Pro
           </button>
-
-          {editProfileOptionModal}
-          {changePassword}
-          {changeName}
         </div>
       </section>
     </>

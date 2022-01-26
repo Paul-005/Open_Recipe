@@ -15,14 +15,7 @@ export default function Navbar() {
   const history = useHistory();
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        width: "100%",
-        zIndex: "1"
-      }}
-      className="navbar navbar-expand-lg navbar-dark text-center bg-dark"
-    >
+    <nav className="navbar navbar-expand-lg navbar-dark text-center bg-dark">
       <div className="container-fluid">
         <div className="navbar-brand" onClick={() => history.push("/")}>
           <img
@@ -111,8 +104,8 @@ export default function Navbar() {
                     Profile
                   </div>
                 </li>
-                <div class="d-flex">
-                  <span class="navbar-text navbar-brand container-fluid">
+                <div className="d-flex">
+                  <span className="navbar-text navbar-brand container-fluid">
                     {name}
                   </span>
                 </div>
