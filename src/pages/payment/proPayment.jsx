@@ -35,7 +35,7 @@ export default function ProPaymentUI() {
 
         <main>
           <div className=" d-flex  justify-content-center align-items-center my-3 text-center">
-            <div className="card mb-4 w-50 rounded-3 shadow-lg">
+            <div className="card mb-4 w-sm-50 rounded-5 shadow-lg">
               <div className="card-header py-3">
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1086/1086741.png"
