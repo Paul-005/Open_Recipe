@@ -14,7 +14,7 @@ export default function PaymentCancelPage() {
               </div>
             </div>
             <div class="content">
-              <h1>Payment Failure !</h1>
+              <h1>Payment Was Failure !</h1>
               <p>Seem's that you have cancelled it..</p>
             </div>
           </div>

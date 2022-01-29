@@ -22,7 +22,12 @@ export default function ProfilePage() {
     window.location.href = "/";
   };
 
+  function verifyUser() {
+    if (!localStorage.getItem("jwt")) history.push("/login");
+  }
+
   useEffect(() => {
+    verifyUser();
     getUserInfo();
   }, []);
 

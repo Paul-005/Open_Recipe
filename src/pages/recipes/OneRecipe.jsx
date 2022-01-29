@@ -19,7 +19,11 @@ export default function OneRecipe() {
 
   const getOneRecipe = () => {
     axios
-      .get(`${React_Backend}/recipes/${id}`)
+      .get(`${React_Backend}/recipes/${id}`, {
+        headers: {
+          token: localStorage.getItem("jwt")
+        }
+      })
       .then((res) => {
         setrecipeData(res.data);
         console.log(res.data);

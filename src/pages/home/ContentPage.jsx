@@ -40,6 +40,13 @@ export default function ContentEditingPage() {
     imgEncoder();
   }, [fileImage]);
 
+  const uploadImage = () => {
+    axios
+      .post("https://api.cloudinary.com/v1_1/personal-cloud-paul/image/upload")
+      .then((res) => console.log(res))
+      .catch((e) => setError(e.message));
+  };
+
   const history = useHistory();
 
   const publishContent = () => {
