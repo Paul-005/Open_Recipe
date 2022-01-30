@@ -107,6 +107,24 @@ export default function ProfilePage() {
           </button>
         </div>
       </section>
+      <section className="container">
+        <span className="h2 text-primary text-center fw-bold m-5">
+          Your Recipes
+        </span>
+        <div>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Subheading</div>
+                Content for list item
+              </div>
+              <span class="badge bg-danger rounded-pill">
+                <i class="bi bi-trash-fill"></i>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </section>
     </>
   );
 }
