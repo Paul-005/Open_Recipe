@@ -7,6 +7,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState({});
   const [usersRecipe, setusersRecipe] = useState([]);
   const [error, setError] = useState("");
+  const [pending, setPending] = useState("");
 
   const history = useHistory();
 
@@ -48,6 +49,17 @@ export default function ProfilePage() {
     getUsersRecipe();
   }, []);
 
+  const deleteRecipe = (id) => {
+    setPending(true);
+    axios
+      .get(`${React_Backend}/recipes/${id}/delete`)
+      .then(() => setPending(true))
+      .catch((err) => {
+        setError(err.message);
+        setPending(false);
+      });
+  };
+
   return (
     <>
       {/* Users Profile Section  */}
@@ -85,12 +97,15 @@ export default function ProfilePage() {
             <ul class="list-group">
               <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div
-                  onClick={() => history.push(`/recipe/${data._id}`)}
+                  onClick={() => history.push(`/recipes/${data._id}`)}
                   class="ms-2 me-auto"
                 >
                   <div class="fw-bold">{data.recipeName}</div>
                 </div>
-                <span class="badge bg-danger rounded-pill">
+                <span
+                  onClick={() => deleteRecipe(data._id)}
+                  class="badge bg-danger rounded-pill"
+                >
                   <i class="bi bi-trash-fill"></i>
                 </span>
               </li>
