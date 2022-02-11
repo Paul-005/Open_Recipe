@@ -18,16 +18,17 @@ export default function ProfilePage() {
   };
 
   const getUsersRecipe = async () => {
+    setPending(true);
+
     try {
       const recipes = await axios.get(`${React_Backend}/get-users-recipe`, {
-        headers: {
-          token: localStorage.getItem("jwt")
-        }
+        headers: { token: localStorage.getItem("jwt") }
       });
       setusersRecipe(recipes.data);
-      console.log(recipes);
+      setPending(false);
     } catch (error) {
       setError(error.message);
+      setPending(false);
     }
   };
 
@@ -51,8 +52,14 @@ export default function ProfilePage() {
 
   const deleteRecipe = (id) => {
     setPending(true);
+    console.log(`${React_Backend}/recipes/${id}/delete`);
+
     axios
-      .get(`${React_Backend}/recipes/${id}/delete`)
+      .get(`${React_Backend}/recipes/${id}/delete`, {
+        headers: {
+          token: localStorage.getItem("jwt")
+        }
+      })
       .then(() => setPending(true))
       .catch((err) => {
         setError(err.message);
@@ -92,6 +99,11 @@ export default function ProfilePage() {
         <span className="h2 text-primary text-center fw-bold m-5">
           Your Recipes
         </span>
+        {pending && (
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        )}
         <div>
           {usersRecipe.map((data) => (
             <ul class="list-group">
@@ -106,7 +118,10 @@ export default function ProfilePage() {
                   onClick={() => deleteRecipe(data._id)}
                   class="badge bg-danger rounded-pill"
                 >
-                  <i class="bi bi-trash-fill"></i>
+                  <i
+                    onClick={() => deleteRecipe(data._id)}
+                    class="bi bi-trash-fill"
+                  ></i>
                 </span>
               </li>
             </ul>

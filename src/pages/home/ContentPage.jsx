@@ -9,23 +9,9 @@ export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
-  const [fileImage, setfileImage] = useState(null);
-  const [imgUrl, setimgUrl] = useState("");
 
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-
-  const imgEncoder = (e) => {
-    if (!fileImage) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(fileImage);
-    reader.onloadend = () => {
-      setimgUrl(reader.result);
-    };
-    reader.onerror = (e) => {
-      setError(e.message);
-    };
-  };
 
   function verifyUser() {
     if (!localStorage.getItem("jwt")) {
@@ -35,17 +21,6 @@ export default function ContentEditingPage() {
   useEffect(() => {
     verifyUser();
   }, []);
-
-  useEffect(() => {
-    imgEncoder();
-  }, [fileImage]);
-
-  const uploadImage = () => {
-    axios
-      .post("https://api.cloudinary.com/v1_1/personal-cloud-paul/image/upload")
-      .then((res) => console.log(res))
-      .catch((e) => setError(e.message));
-  };
 
   const history = useHistory();
 
@@ -73,8 +48,7 @@ export default function ContentEditingPage() {
         data: {
           recipeName,
           Incredients,
-          RecipeContent,
-          image: imgUrl
+          RecipeContent
         }
       })
         .then(() => {
@@ -152,20 +126,6 @@ export default function ContentEditingPage() {
               /> */}
             </div>
           </div>
-
-          <div class="mb-3">
-            <label for="formFile" class="form-label">
-              Add an Image
-            </label>
-            <input
-              class="form-control"
-              type="file"
-              id="formFile"
-              onChange={(e) => setfileImage(e.target.files[0])}
-            />
-          </div>
-
-          {fileImage && <img src={imgUrl} className="img-fluid" alt="chosen" />}
 
           <div className="mb-3">
             <label for="exampleFormControlTextarea1" className="form-label">
