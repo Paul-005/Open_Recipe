@@ -79,15 +79,6 @@ export default function OneRecipe() {
                 </h1>
                 <div className="d-sm-flex ">
                   <p className="lead text-info mx-sm-3 ">{recipeData.email}</p>
-                  <div className=" mt-sm-2 ">
-                    <i
-                      className="bi bi-hand-thumbs-up-fill mx-2 "
-                      style={{
-                        color: "yellow"
-                      }}
-                    />
-                    2k likes
-                  </div>
                 </div>
               </section>
 
@@ -105,29 +96,6 @@ export default function OneRecipe() {
                 <h1 className="h1 fw-bold text-warning my-2">Recipe Method</h1>
                 <p className="lead">{recipeData.RecipeContent}</p>
               </section>
-              <button className="btn btn-warning bi-hand-thumbs-up-fill mx-2">
-                Like
-              </button>
-            </div>
-            <div class="input-group form-floating m-sm-5 ">
-              <input
-                type="text"
-                class="form-control"
-                id="floatingInput"
-                placeholder="type the message"
-                onChange={(e) => setcomment(e.target.value)}
-              />
-              <label for="floatingInput">Send a comment</label>
-              <button
-                class="btn btn-outline-primary"
-                onClick={getOneRecipeComment}
-              >
-                Send
-              </button>
-            </div>
-            <div className="container">
-              <span className="text-center text-primary">Comments</span>
-              <ul class="list-group"></ul>
             </div>
           </div>
         </div>
