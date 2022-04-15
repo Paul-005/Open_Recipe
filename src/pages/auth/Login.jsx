@@ -20,7 +20,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     axios
-      .post(`${React_Backend}/LoginAccount`, {
+      .post(`${React_Backend}/login`, {
         email,
         password
       })

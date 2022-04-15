@@ -26,7 +26,7 @@ export default function SignUp() {
     } else {
       setLoading(true);
       axios
-        .post(`${React_Backend}/CreateAccount`, {
+        .post(`${React_Backend}/signup`, {
           email,
           password,
           name
