@@ -52,7 +52,7 @@ export default function ContentEditingPage() {
         }
       })
         .then(() => {
-          history.push("/");
+          history.push("/recipes");
           setPending(false);
         })
         .catch((e) => setError(e.message));

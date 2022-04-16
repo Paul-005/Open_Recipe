@@ -60,7 +60,10 @@ export default function ProfilePage() {
           token: localStorage.getItem("jwt")
         }
       })
-      .then(() => setPending(true))
+      .then(() => {
+        setPending(false);
+        getUsersRecipe();
+      })
       .catch((err) => {
         setError(err.message);
         setPending(false);

@@ -2,8 +2,6 @@ import axios from "axios";
 import { useState } from "react";
 
 import "../../styles/auth/Login.css";
-import "../../styles/auth/Login.css";
-import Logo from "../../assets/cook-book.png";
 
 import { useHistory } from "react-router-dom";
 import { React_Backend } from "../backend_url";
@@ -39,14 +37,19 @@ export default function SignUp() {
           }
           if (response.data.token !== undefined) {
             localStorage.setItem("jwt", response.data.token);
-            localStorage.setItem("username", response.data.user.email);
-            localStorage.setItem("name", response.data.user.name);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            localStorage.setItem("username", response.data.email);
+            localStorage.setItem("name", response.data.name);
+            localStorage.setItem(
+              "user",
+              JSON.stringify({
+                email: response.data.email,
+                name: response.data.name
+              })
+            );
             window.location.href = "/";
             seterror("");
             setLoading(false);
           }
-          return null;
         })
         .catch(function (error) {
           console.log(error);
