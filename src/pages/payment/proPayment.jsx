@@ -3,15 +3,19 @@ import { useState } from "react";
 import { React_Backend } from "../backend_url";
 
 export default function ProPaymentUI() {
-  const [pending, setpedning] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const PayForPro = () => {
-    setpedning(true);
+    setPending(true);
 
     axios
-      .get(`${React_Backend}/propayment`)
+      .get(`${React_Backend}/propayment`, {
+        headers: {
+          token: localStorage.getItem("jwt"),
+        },
+      })
       .then((res) => {
-        setpedning(false);
+        setPending(false);
         window.location.href = res.data.url;
       })
       .catch((err) => console.log(err.message));
@@ -47,7 +51,7 @@ export default function ProPaymentUI() {
                 </h4>
               </div>
               <div className="card-body">
-                <h1 className="card-title pricing-card-title">Rs. 200.0</h1>
+                <h1 className="card-title pricing-card-title">Rs. 200.00</h1>
                 <p className="lead">You'll get a pro badge in acount</p>
                 <p className="lead">
                   Others would see the badge while you post recipe or mention
