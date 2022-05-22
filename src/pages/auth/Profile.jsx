@@ -22,10 +22,11 @@ export default function ProfilePage() {
 
     try {
       const recipes = await axios.get(`${React_Backend}/get-users-recipe`, {
-        headers: { token: localStorage.getItem("jwt") }
+        headers: { token: localStorage.getItem("jwt") },
       });
       setusersRecipe(recipes.data);
       setPending(false);
+      console.log(recipes.data);
     } catch (error) {
       setError(error.message);
       setPending(false);
@@ -57,8 +58,8 @@ export default function ProfilePage() {
     axios
       .get(`${React_Backend}/recipes/${id}/delete`, {
         headers: {
-          token: localStorage.getItem("jwt")
-        }
+          token: localStorage.getItem("jwt"),
+        },
       })
       .then(() => {
         setPending(false);
@@ -78,19 +79,27 @@ export default function ProfilePage() {
         <div class=" image d-flex flex-column justify-content-center align-items-center">
           <span class="name mt-3 h1">
             <i class="bi bi-person-circle mx-2"></i>
-            {user.name}
+
+            <div>
+              {user.name}
+              {usersRecipe.pro && (
+                <span class="badge m-2 bg-secondary">Pro</span>
+              )}
+            </div>
           </span>
           <buttton className="btn btn-warning fw-bold" onClick={signOut}>
             Sign Out
           </buttton>
           <span class=" lead">{user.email}</span>
 
-          <button
-            onClick={() => history.push("/pro-payment")}
-            className="btn btn-dark fw-bold m-4"
-          >
-            Upgrade To Pro
-          </button>
+          {!usersRecipe.pro && (
+            <button
+              onClick={() => history.push("/pro-payment")}
+              className="btn btn-dark fw-bold m-4"
+            >
+              Upgrade To Pro
+            </button>
+          )}
           {error !== "" && (
             <div class="alert alert-danger text-center" role="alert">
               {error}
@@ -108,27 +117,28 @@ export default function ProfilePage() {
           </div>
         )}
         <div>
-          {usersRecipe.map((data) => (
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-start">
-                <div
-                  onClick={() => history.push(`/recipes/${data._id}`)}
-                  class="ms-2 me-auto"
-                >
-                  <div class="fw-bold">{data.recipeName}</div>
-                </div>
-                <span
-                  onClick={() => deleteRecipe(data._id)}
-                  class="badge bg-danger rounded-pill"
-                >
-                  <i
+          {usersRecipe.length !== 0 &&
+            usersRecipe.getRecipe.map((data) => (
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div
+                    onClick={() => history.push(`/recipe/${data._id}`)}
+                    class="ms-2 me-auto"
+                  >
+                    <div class="fw-bold">{data.recipeName}</div>
+                  </div>
+                  <span
                     onClick={() => deleteRecipe(data._id)}
-                    class="bi bi-trash-fill"
-                  ></i>
-                </span>
-              </li>
-            </ul>
-          ))}
+                    class="badge bg-danger rounded-pill"
+                  >
+                    <i
+                      onClick={() => deleteRecipe(data._id)}
+                      class="bi bi-trash-fill"
+                    ></i>
+                  </span>
+                </li>
+              </ul>
+            ))}
         </div>
       </section>
     </>
