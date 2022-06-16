@@ -9,6 +9,7 @@ export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
+  const [FoodImg, setFoodImage] = useState([]);
 
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -59,6 +60,16 @@ export default function ContentEditingPage() {
     }
   };
 
+  const selectedImgInput = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        setFoodImage(e.target.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
   return (
     <>
       <div className="container">
@@ -91,6 +102,30 @@ export default function ContentEditingPage() {
               </div>
             </div>
           )}
+
+          <img
+            style={{
+              height: 200,
+              width: 300,
+              display: FoodImg.length === 0 && "none"
+            }}
+            src={FoodImg}
+            alt=""
+          />
+
+          <div className="row g-3">
+            <div className="col-sm-6">
+              <label className="form-label">Food Image</label>
+              <input
+                onChange={selectedImgInput}
+                type="file"
+                accept=" image/jpeg, image/png"
+                className="form-control"
+                placeholder="Food Item"
+                required
+              />
+            </div>
+          </div>
 
           <div className="row g-3">
             <div className="col-sm-6">
