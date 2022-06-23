@@ -44,8 +44,7 @@ export default function Home() {
                 Open Recipe
               </h1>
               <p className="lead fw-normal text-muted fs-sm-1 mb-5 justify-content-left text-left">
-                Open source your recipe by sharing it with others and Others
-                will suggest the changes needed to be.
+                Open source your recipe by sharing it with others. They will suggest the changes needed to make it.
               </p>{" "}
             </div>
             <img
