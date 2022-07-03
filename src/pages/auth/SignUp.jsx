@@ -65,7 +65,7 @@ export default function SignUp() {
         <form>
           <img
             className="mb-4"
-            src="https://i.ibb.co/8PsvNSN/download.png"
+            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
             alt="cook"
             width="85"
             height="85"
@@ -127,7 +127,7 @@ export default function SignUp() {
             Already having acount? Login
           </p>
 
-          <p className="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+          <p className="mt-5 mb-3 text-muted">&copy; 2022</p>
         </form>
       </main>
     </div>

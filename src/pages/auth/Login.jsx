@@ -48,12 +48,12 @@ export default function LoginPage() {
 
   return (
     <div className="text-center">
-      <h1 className="title ">Open Recipe</h1>
+      <h1 className="title  fw-bold ">Open Recipe</h1>
       <main className="form-signin ">
         <form>
           <img
             className="mb-4"
-            src="https://i.ibb.co/8PsvNSN/download.png"
+            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
             alt=""
             width="85"
             height="85"
@@ -108,7 +108,7 @@ export default function LoginPage() {
           >
             Don't Have An Account? Sign Up
           </p>
-          <p className="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+          <p className="mt-5 mb-3 text-muted">&copy; 2022</p>
         </form>
       </main>
     </div>

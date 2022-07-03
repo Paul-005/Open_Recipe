@@ -43,14 +43,14 @@ export default function ContentEditingPage() {
       axios({
         method: "post",
         headers: {
-          token: localStorage.getItem("jwt")
+          token: localStorage.getItem("jwt"),
         },
         url: `${React_Backend}/content-edit`,
         data: {
           recipeName,
           Incredients,
-          RecipeContent
-        }
+          RecipeContent,
+        },
       })
         .then(() => {
           history.push("/recipes");
@@ -60,15 +60,8 @@ export default function ContentEditingPage() {
     }
   };
 
-  const selectedImgInput = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-        setFoodImage(e.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
+
+
 
   return (
     <>
@@ -107,25 +100,27 @@ export default function ContentEditingPage() {
             style={{
               height: 200,
               width: 300,
-              display: FoodImg.length === 0 && "none"
+              display: FoodImg.length === 0 && "none",
             }}
             src={FoodImg}
             alt=""
           />
 
-          <div className="row g-3">
-            <div className="col-sm-6">
-              <label className="form-label">Food Image</label>
-              <input
-                onChange={selectedImgInput}
-                type="file"
-                accept=" image/jpeg, image/png"
-                className="form-control"
-                placeholder="Food Item"
-                required
-              />
-            </div>
+
+          <div className="col-sm-6">
+            <label className="form-label">Food Image</label>
+            <input
+              onChange={() => {
+                setFoodImage(e.target.files[0]);
+              }}
+              type="file"
+              accept=" image/jpeg, image/png"
+              className="form-control"
+              placeholder="Food Item"
+              required
+            />
           </div>
+
 
           <div className="row g-3">
             <div className="col-sm-6">
@@ -178,7 +173,6 @@ export default function ContentEditingPage() {
             className="  btn btn-primary m-4 "
             type="submit"
             onClick={publishContent}
-            whileHover={{ opacity: 0.5, scale: 1.2 }}
           >
             Publish
           </button>
