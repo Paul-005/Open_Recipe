@@ -64,7 +64,6 @@ export default function OneRecipe() {
   }
 
   const seperateIncredients = (data) => {
-
   }
 
 

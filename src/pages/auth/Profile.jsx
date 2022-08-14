@@ -75,7 +75,7 @@ export default function ProfilePage() {
     <>
       {/* Users Profile Section  */}
 
-      <section class="container  d-flex justify-content-center">
+      <section class="container m-sm-5 d-flex justify-content-center">
         <div class=" image d-flex flex-column justify-content-center align-items-center">
           <span class="name mt-3 h1">
             <i class="bi bi-person-circle mx-2"></i>
@@ -107,7 +107,7 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
-      <section className="container ">
+      <section className="container d-flex justify-content-center">
 
         {pending && (
           <div class="spinner-border" role="status">

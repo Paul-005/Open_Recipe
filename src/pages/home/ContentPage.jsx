@@ -9,7 +9,7 @@ export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
-  const [FoodImg, setFoodImage] = useState([]);
+  const [FoodImg, setFoodImage] = useState();
 
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -22,6 +22,13 @@ export default function ContentEditingPage() {
   useEffect(() => {
     verifyUser();
   }, []);
+
+  const imgUpload = () => {
+    const formData = new FormData();
+    formData.append('file', FoodImg);
+
+    console.log(FoodImg);
+  }
 
   const history = useHistory();
 
@@ -96,23 +103,14 @@ export default function ContentEditingPage() {
             </div>
           )}
 
-          <img
-            style={{
-              height: 200,
-              width: 300,
-              display: FoodImg.length === 0 && "none",
-            }}
-            src={FoodImg}
-            alt=""
-          />
-
-
           <div className="col-sm-6">
             <label className="form-label">Food Image</label>
             <input
               onChange={() => {
                 setFoodImage(e.target.files[0]);
+                imgUpload()
               }}
+
               type="file"
               accept=" image/jpeg, image/png"
               className="form-control"
