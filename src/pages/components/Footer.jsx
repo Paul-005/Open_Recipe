@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container">
         <div className="copyright py-4 text-center text-light">
           <div className="container">
-            <small>Copyright &copy; Open Recipe 2021</small>
+            <small>Copyright &copy; Open Recipe 2022</small>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ export default function OneRecipe() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
   const { id } = useParams();
   const history = useHistory();
 
@@ -16,6 +17,8 @@ export default function OneRecipe() {
     verifyUser();
     getOneRecipe();
   }, []);
+
+
 
   const getOneRecipe = () => {
     axios
@@ -29,6 +32,8 @@ export default function OneRecipe() {
         console.log(res.data);
         setLoading(false);
         setError("");
+        seperateIncredients(res.data);
+
       })
       .catch((err) => {
         setError(err.message);
@@ -58,6 +63,12 @@ export default function OneRecipe() {
     if (!localStorage.getItem("jwt")) history.push("/login");
   }
 
+  const seperateIncredients = (data) => {
+
+  }
+
+
+
   return (
     <>
       <section className="py-5">
@@ -74,8 +85,8 @@ export default function OneRecipe() {
               {/* Recipe Header */}
 
               <section className="my-3">
-                <h1 className="display-5 fw-bolder ">
-                  {recipeData.recipeName}
+                <h1 className="display-5 fw-bolder text-underline">
+                  <u>{recipeData.recipeName}</u>
                 </h1>
                 <div className="d-sm-flex ">
                   <p className="lead text-info mx-sm-3 ">{recipeData.email}</p>
@@ -85,7 +96,7 @@ export default function OneRecipe() {
               {/* Incredeints */}
               <section className="my-4">
                 <p className="lead">
-                  <h1 className="fw-bold text-primary">Incredients</h1>
+                  <h1 className="fw-bold text-primary"><u>Incredients</u></h1>
                   {recipeData.Incredients}
                 </p>
               </section>
@@ -93,7 +104,7 @@ export default function OneRecipe() {
               {/* Recipe Method */}
 
               <section className="my-4">
-                <h1 className="h1 fw-bold text-warning my-2">Recipe Method</h1>
+                <h1 className="h1 fw-bold text-warning my-2"><u>Recipe Method</u></h1>
                 <p className="lead">{recipeData.RecipeContent}</p>
               </section>
             </div>

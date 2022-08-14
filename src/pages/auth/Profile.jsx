@@ -107,20 +107,24 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
-      <section className="container">
-        <span className="h2 text-primary text-center fw-bold m-5">
-          Your Recipes
-        </span>
+      <section className="container ">
+
         {pending && (
           <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
         )}
-        <div>
+        <div className="card w-75 w-sm-25 shadow">
+          <div class="card-header">
+            <span className=" text-center fw-bold m-5">
+              Your Recipes
+            </span>
+          </div>
           {usersRecipe.length !== 0 &&
             usersRecipe.getRecipe.map((data) => (
-              <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-start">
+
+              <ul class="list-group list-group-flush p-3">
+                <li class=" d-flex justify-content-center align-items-start">
                   <div
                     onClick={() => history.push(`/recipe/${data._id}`)}
                     class="ms-2 me-auto"
@@ -140,6 +144,17 @@ export default function ProfilePage() {
               </ul>
             ))}
         </div>
+        {/* <div class="card shadow">
+          <div class="card-header">
+            Recipes
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">An item </li>
+            <li class="list-group-item">A second item</li>
+            <li class="list-group-item">A third item</li>
+          </ul>
+        </div> */}
+
       </section>
     </>
   );

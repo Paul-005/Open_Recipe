@@ -51,7 +51,7 @@ export default function Home() {
               src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
               className="d-block img-fluid m-3  "
               alt="..."
-              // width="600"
+            // width="600"
             />
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function Home() {
       <section className="page-section portfolio" id="portfolio">
         <div className="container">
           <h2 className="page-section-heading text-center text-uppercase text-secondary m-5">
-            Some Recipes
+            <u>Some Recipes</u>
           </h2>
           <div className="row justify-content-center">
             {/* Image maping */}

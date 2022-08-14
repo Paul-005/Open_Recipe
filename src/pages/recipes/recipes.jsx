@@ -71,7 +71,12 @@ export default function Recipes() {
         </div>
       </main>
 
-      <Footer />
+      <span style={{
+        position: "fixed",
+        bottom: 0,
+      }}>
+        <Footer />
+      </span>
     </>
   );
 }
