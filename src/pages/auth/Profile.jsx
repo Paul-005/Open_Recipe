@@ -71,6 +71,8 @@ export default function ProfilePage() {
       });
   };
 
+
+
   return (
     <>
       {/* Users Profile Section  */}
@@ -122,38 +124,52 @@ export default function ProfilePage() {
           </div>
           {usersRecipe.length !== 0 &&
             usersRecipe.getRecipe.map((data) => (
+              <>
 
-              <ul class="list-group list-group-flush p-3">
-                <li class=" d-flex justify-content-center align-items-start">
-                  <div
-                    onClick={() => history.push(`/recipe/${data._id}`)}
-                    class="ms-2 me-auto"
-                  >
-                    <div class="fw-bold">{data.recipeName}</div>
+
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content ">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-danger" id="exampleModalLabel">Delete Recipe</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-danger">
+                        <p className="title">{data.recipeName}</p>
+                        Are you sure you want to delete this recipe?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" >Delete</button>
+                      </div>
+                    </div>
                   </div>
-                  <span
-                    onClick={() => deleteRecipe(data._id)}
-                    class="badge bg-danger rounded-pill"
-                  >
-                    <i
+                </div>
+
+
+                <ul class="list-group list-group-flush p-3">
+                  <li class=" d-flex justify-content-center align-items-start">
+                    <div
+                      onClick={() => history.push(`/recipe/${data._id}`)}
+                      class="ms-2 me-auto"
+                    >
+                      <div class="fw-bold">{data.recipeName}</div>
+                    </div>
+                    <span
                       onClick={() => deleteRecipe(data._id)}
-                      class="bi bi-trash-fill"
-                    ></i>
-                  </span>
-                </li>
-              </ul>
+                      // data-bs-toggle="modal" data-bs-target="#exampleModal"
+                      class="badge bg-danger rounded-pill"
+                    >
+                      <i
+                        class="bi bi-trash-fill"
+                      ></i>
+                    </span>
+                  </li>
+                </ul>
+              </>
             ))}
         </div>
-        {/* <div class="card shadow">
-          <div class="card-header">
-            Recipes
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">An item </li>
-            <li class="list-group-item">A second item</li>
-            <li class="list-group-item">A third item</li>
-          </ul>
-        </div> */}
+
 
       </section>
     </>

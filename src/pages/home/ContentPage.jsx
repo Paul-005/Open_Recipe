@@ -23,12 +23,44 @@ export default function ContentEditingPage() {
     verifyUser();
   }, []);
 
-  const imgUpload = () => {
+  const imgUpload = async () => {
     const formData = new FormData();
     formData.append('file', FoodImg);
 
-    console.log(FoodImg);
-  }
+    try {
+      const res = await axios.post(`${React_Backend}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: progressEvent => {
+          // setUploadPercentage(
+          //   parseInt(
+          //     Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          //   )
+          // );
+          console.log(progressEvent.loaded);
+        }
+      });
+
+      // Clear percentage
+      // setTimeout(() => setUploadPercentage(0), 10000);
+
+      const { fileName, filePath } = res.data;
+
+      // setUploadedFile({ fileName, filePath });
+
+      // setMessage('File Uploaded');
+    } catch (err) {
+      console.log(err.message);
+      if (err.response.status === 500) {
+        // setMessage('There was a problem with the server');
+      } else {
+        // setMessage(err.response.data.msg);
+      }
+      // setUploadPercentage(0)
+    }
+  };
+
 
   const history = useHistory();
 
@@ -37,14 +69,14 @@ export default function ContentEditingPage() {
       recipeName.length === 0 ||
       Incredients.length === 0 ||
       RecipeContent.length === 0
-    ) {
+    )
       setError("No Content To Publish");
-    } else if (
+    else if (
       localStorage.getItem("name") == null ||
       localStorage.getItem("username") == null
-    ) {
+    )
       setError("Please Login To Retrieve Your Name And Email");
-    } else {
+    else {
       setError("");
       setPending(true);
       axios({
@@ -66,10 +98,6 @@ export default function ContentEditingPage() {
         .catch((e) => setError(e.message));
     }
   };
-
-
-
-
   return (
     <>
       <div className="container">
@@ -103,10 +131,10 @@ export default function ContentEditingPage() {
             </div>
           )}
 
-          <div className="col-sm-6">
+          {/* <div className="col-sm-6">
             <label className="form-label">Food Image</label>
             <input
-              onChange={() => {
+              onChange={(e) => {
                 setFoodImage(e.target.files[0]);
                 imgUpload()
               }}
@@ -117,7 +145,8 @@ export default function ContentEditingPage() {
               placeholder="Food Item"
               required
             />
-          </div>
+            <button className="btn btn-secondary" onClick={imgUpload}>upload</button>
+          </div> */}
 
 
           <div className="row g-3">
@@ -179,4 +208,5 @@ export default function ContentEditingPage() {
       <Footer />
     </>
   );
+
 }
