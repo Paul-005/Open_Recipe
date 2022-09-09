@@ -87,6 +87,14 @@ export default function OneRecipe() {
                 <h1 className="display-5 fw-bolder text-underline">
                   <u>{recipeData.recipeName}</u>
                 </h1>
+                <span className="d-flex align-items-center my-5">
+                  <button className="btn btn-warning mx-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                    </svg>
+                  </button>
+                  <p className="lead fw-bold">Save to favorite</p>
+                </span>
                 <div className="d-sm-flex ">
                   <p className="lead text-info mx-sm-3 ">{recipeData.email}</p>
                 </div>
