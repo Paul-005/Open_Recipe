@@ -116,42 +116,6 @@ export default function ProfilePage() {
             <span class="visually-hidden">Loading...</span>
           </div>
         )}
-        <div className="card w-75 w-sm-25 shadow m-4">
-          <div class="card-header">
-            <span className=" text-center fw-bold m-5">
-              Your's Favorite Recipes <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
-              </svg>
-            </span>
-          </div>
-          {usersRecipe.length !== 0 &&
-            usersRecipe.getRecipe.map((data) => (
-              <>
-
-
-
-                <ul class="list-group list-group-flush p-3">
-                  <li class=" d-flex justify-content-center align-items-start">
-                    <div
-                      onClick={() => history.push(`/recipe/${data._id}`)}
-                      class="ms-2 me-auto"
-                    >
-                      <div class="fw-bold">{data.recipeName}</div>
-                    </div>
-                    <span
-                      onClick={() => deleteRecipe(data._id)}
-                      // data-bs-toggle="modal" data-bs-target="#exampleModal"
-                      class="badge bg-danger rounded-pill"
-                    >
-                      <i
-                        class="bi bi-trash-fill"
-                      ></i>
-                    </span>
-                  </li>
-                </ul>
-              </>
-            ))}
-        </div>
 
         <div className="card w-75 w-sm-25 shadow m-4">
           <div class="card-header">
@@ -177,7 +141,7 @@ export default function ProfilePage() {
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" >Delete</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onClick={() => deleteRecipe(data._id)} >Delete</button>
                       </div>
                     </div>
                   </div>
@@ -193,9 +157,9 @@ export default function ProfilePage() {
                       <div class="fw-bold">{data.recipeName}</div>
                     </div>
                     <span
-                      onClick={() => deleteRecipe(data._id)}
                       // data-bs-toggle="modal" data-bs-target="#exampleModal"
                       class="badge bg-danger rounded-pill"
+                      data-bs-toggle="modal" data-bs-target="#exampleModal"
                     >
                       <i
                         class="bi bi-trash-fill"
