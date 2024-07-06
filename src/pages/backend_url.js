@@ -1,5 +1,5 @@
 // production
-export const React_Backend = "https://open-recipe.up.railway.app";
+export const React_Backend = "https://open-recipe-backend.onrender.com";
 
 // development on gitpod
 // export const React_Backend =
