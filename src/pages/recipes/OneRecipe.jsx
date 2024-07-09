@@ -9,7 +9,6 @@ export default function OneRecipe() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-
   const { id } = useParams();
   const history = useHistory();
 
@@ -18,14 +17,12 @@ export default function OneRecipe() {
     getOneRecipe();
   }, []);
 
-
-
   const getOneRecipe = () => {
     axios
       .get(`${React_Backend}/recipes/${id}`, {
         headers: {
-          token: localStorage.getItem("jwt")
-        }
+          token: localStorage.getItem("jwt"),
+        },
       })
       .then((res) => {
         setrecipeData(res.data);
@@ -33,7 +30,6 @@ export default function OneRecipe() {
         setLoading(false);
         setError("");
         seperateIncredients(res.data);
-
       })
       .catch((err) => {
         setError(err.message);
@@ -47,7 +43,7 @@ export default function OneRecipe() {
     axios
       .post(`${React_Backend}/recipes/${id}`, {
         comment,
-        email: user.email
+        email: user.email,
       })
       .then(() => {
         setLoading(false);
@@ -63,10 +59,7 @@ export default function OneRecipe() {
     if (!localStorage.getItem("jwt")) history.push("/login");
   }
 
-  const seperateIncredients = (data) => {
-  }
-
-
+  const seperateIncredients = (data) => {};
 
   return (
     <>
@@ -84,26 +77,23 @@ export default function OneRecipe() {
               {/* Recipe Header */}
 
               <section className="my-3">
-                <h1 className="display-5 fw-bolder text-underline">
+                <h1 className="display-5 fw-bolder">
                   <u>{recipeData.recipeName}</u>
                 </h1>
-                <span className="d-flex align-items-center my-5">
-                  <button className="btn btn-warning mx-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
-                    </svg>
-                  </button>
-                  <p className="lead fw-bold">Save to favorite</p>
-                </span>
+
                 <div className="d-sm-flex ">
-                  <p className="lead text-info mx-sm-3 ">{recipeData.email}</p>
+                  <p className="lead text-info mx-sm-3 ">
+                    By: {recipeData.email}
+                  </p>
                 </div>
               </section>
 
               {/* Incredeints */}
               <section className="my-4">
                 <p className="lead">
-                  <h1 className="fw-bold text-primary"><u>Incredients</u></h1>
+                  <h1 className="fw-bold text-primary">
+                    <u>Incredients</u>
+                  </h1>
                   {recipeData.Incredients}
                 </p>
               </section>
@@ -111,7 +101,9 @@ export default function OneRecipe() {
               {/* Recipe Method */}
 
               <section className="my-4">
-                <h1 className="h1 fw-bold text-warning my-2"><u>Recipe Method</u></h1>
+                <h1 className="h1 fw-bold text-warning my-2">
+                  <u>Recipe Method</u>
+                </h1>
                 <p className="lead">{recipeData.RecipeContent}</p>
               </section>
             </div>

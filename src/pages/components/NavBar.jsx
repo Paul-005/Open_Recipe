@@ -52,15 +52,6 @@ export default function Navbar() {
             <li className="nav-item">
               <div
                 className="nav-link  "
-                onClick={() => history.push("/content-editing")}
-              >
-                Add Recipe
-              </div>
-            </li>
-
-            <li className="nav-item">
-              <div
-                className="nav-link  "
                 onClick={() => history.push("/recipes")}
               >
                 Recipes
@@ -96,6 +87,14 @@ export default function Navbar() {
             )}
             {authState && (
               <>
+                <li className="nav-item">
+                  <div
+                    className="nav-link  "
+                    onClick={() => history.push("/content-editing")}
+                  >
+                    Post Recipe
+                  </div>
+                </li>
                 <li className="nav-item">
                   <div
                     className="nav-link  "

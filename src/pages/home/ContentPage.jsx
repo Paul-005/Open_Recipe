@@ -25,21 +25,21 @@ export default function ContentEditingPage() {
 
   const imgUpload = async () => {
     const formData = new FormData();
-    formData.append('file', FoodImg);
+    formData.append("file", FoodImg);
 
     try {
       const res = await axios.post(`${React_Backend}/upload`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          "Content-Type": "multipart/form-data",
         },
-        onUploadProgress: progressEvent => {
+        onUploadProgress: (progressEvent) => {
           // setUploadPercentage(
           //   parseInt(
           //     Math.round((progressEvent.loaded * 100) / progressEvent.total)
           //   )
           // );
           console.log(progressEvent.loaded);
-        }
+        },
       });
 
       // Clear percentage
@@ -60,7 +60,6 @@ export default function ContentEditingPage() {
       // setUploadPercentage(0)
     }
   };
-
 
   const history = useHistory();
 
@@ -84,7 +83,7 @@ export default function ContentEditingPage() {
         headers: {
           token: localStorage.getItem("jwt"),
         },
-        url: `${React_Backend}/content-edit`,
+        url: `${React_Backend}/new-recipe-post`,
         data: {
           recipeName,
           Incredients,
@@ -131,23 +130,15 @@ export default function ContentEditingPage() {
             </div>
           )}
 
-          {/* <div className="col-sm-6">
+          <div className="col-sm-6">
             <label className="form-label">Food Image</label>
             <input
-              onChange={(e) => {
-                setFoodImage(e.target.files[0]);
-                imgUpload()
-              }}
-
               type="file"
               accept=" image/jpeg, image/png"
               className="form-control"
               placeholder="Food Item"
-              required
             />
-            <button className="btn btn-secondary" onClick={imgUpload}>upload</button>
-          </div> */}
-
+          </div>
 
           <div className="row g-3">
             <div className="col-sm-6">
@@ -208,5 +199,4 @@ export default function ContentEditingPage() {
       <Footer />
     </>
   );
-
 }

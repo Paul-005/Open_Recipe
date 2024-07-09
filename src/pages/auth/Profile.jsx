@@ -24,9 +24,9 @@ export default function ProfilePage() {
       const recipes = await axios.get(`${React_Backend}/get-users-recipe`, {
         headers: { token: localStorage.getItem("jwt") },
       });
-      setusersRecipe(recipes.data);
+      setusersRecipe(recipes.data.recipe);
       setPending(false);
-      console.log(recipes.data);
+      console.log(recipes.data.recipe);
     } catch (error) {
       setError(error.message);
       setPending(false);
@@ -71,8 +71,6 @@ export default function ProfilePage() {
       });
   };
 
-
-
   return (
     <>
       {/* Users Profile Section  */}
@@ -94,14 +92,6 @@ export default function ProfilePage() {
           </buttton>
           <span class=" lead">{user.email}</span>
 
-          {!usersRecipe.pro && (
-            <button
-              onClick={() => history.push("/pro-payment")}
-              className="btn btn-dark fw-bold m-4"
-            >
-              Upgrade To Pro
-            </button>
-          )}
           {error !== "" && (
             <div class="alert alert-danger text-center" role="alert">
               {error}
@@ -110,7 +100,6 @@ export default function ProfilePage() {
         </div>
       </section>
       <section className="container d-md-flex justify-content-center">
-
         {pending && (
           <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -119,34 +108,58 @@ export default function ProfilePage() {
 
         <div className="card w-75 w-sm-25 shadow m-4">
           <div class="card-header">
-            <span className=" text-center fw-bold m-5">
-              Your Recipes
-            </span>
+            <span className=" text-center fw-bold m-5">Your Recipes</span>
           </div>
           {usersRecipe.length !== 0 &&
-            usersRecipe.getRecipe.map((data) => (
+            usersRecipe.map((data) => (
               <>
-
-
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div
+                  class="modal fade"
+                  id="exampleModal"
+                  tabindex="-1"
+                  aria-labelledby="exampleModalLabel"
+                  aria-hidden="true"
+                >
                   <div class="modal-dialog">
                     <div class="modal-content ">
                       <div class="modal-header">
-                        <h5 class="modal-title text-danger" id="exampleModalLabel">Delete Recipe</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5
+                          class="modal-title text-danger"
+                          id="exampleModalLabel"
+                        >
+                          Delete Recipe
+                        </h5>
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                        ></button>
                       </div>
                       <div class="modal-body text-danger">
-                        <p className="title">{data.recipeName}</p>
+                        <p className="title">{data.recipe}</p>
                         Are you sure you want to delete this recipe?
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onClick={() => deleteRecipe(data._id)} >Delete</button>
+                        <button
+                          type="button"
+                          class="btn btn-success"
+                          data-bs-dismiss="modal"
+                        >
+                          Close
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-danger"
+                          data-bs-dismiss="modal"
+                          onClick={() => deleteRecipe(data._id)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
-
 
                 <ul class="list-group list-group-flush p-3">
                   <li class=" d-flex justify-content-center align-items-start">
@@ -154,24 +167,21 @@ export default function ProfilePage() {
                       onClick={() => history.push(`/recipe/${data._id}`)}
                       class="ms-2 me-auto"
                     >
-                      <div class="fw-bold">{data.recipeName}</div>
+                      <div class="fw-bold">{data.recipe}</div>
                     </div>
                     <span
                       // data-bs-toggle="modal" data-bs-target="#exampleModal"
                       class="badge bg-danger rounded-pill"
-                      data-bs-toggle="modal" data-bs-target="#exampleModal"
+                      data-bs-toggle="modal"
+                      data-bs-target="#exampleModal"
                     >
-                      <i
-                        class="bi bi-trash-fill"
-                      ></i>
+                      <i class="bi bi-trash-fill"></i>
                     </span>
                   </li>
                 </ul>
               </>
             ))}
         </div>
-
-
       </section>
     </>
   );
