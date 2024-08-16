@@ -23,44 +23,6 @@ export default function ContentEditingPage() {
     verifyUser();
   }, []);
 
-  const imgUpload = async () => {
-    const formData = new FormData();
-    formData.append("file", FoodImg);
-
-    try {
-      const res = await axios.post(`${React_Backend}/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          // setUploadPercentage(
-          //   parseInt(
-          //     Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          //   )
-          // );
-          console.log(progressEvent.loaded);
-        },
-      });
-
-      // Clear percentage
-      // setTimeout(() => setUploadPercentage(0), 10000);
-
-      const { fileName, filePath } = res.data;
-
-      // setUploadedFile({ fileName, filePath });
-
-      // setMessage('File Uploaded');
-    } catch (err) {
-      console.log(err.message);
-      if (err.response.status === 500) {
-        // setMessage('There was a problem with the server');
-      } else {
-        // setMessage(err.response.data.msg);
-      }
-      // setUploadPercentage(0)
-    }
-  };
-
   const history = useHistory();
 
   const publishContent = () => {
