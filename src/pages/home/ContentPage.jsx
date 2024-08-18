@@ -25,7 +25,17 @@ export default function ContentEditingPage() {
 
   const history = useHistory();
 
+  
+
   const publishContent = () => {
+
+
+    const formData = new FormData();
+    formData.append("recipeName", recipeName);
+    formData.append("Incredients", Incredients);
+    formData.append("RecipeContent", RecipeContent);
+    formData.append("FoodImg", FoodImg);
+
     if (
       recipeName.length === 0 ||
       Incredients.length === 0 ||
@@ -46,11 +56,7 @@ export default function ContentEditingPage() {
           token: localStorage.getItem("jwt"),
         },
         url: `${React_Backend}/new-recipe-post`,
-        data: {
-          recipeName,
-          Incredients,
-          RecipeContent,
-        },
+        data: formData
       })
         .then(() => {
           history.push("/recipes");
@@ -99,6 +105,8 @@ export default function ContentEditingPage() {
               accept=" image/jpeg, image/png"
               className="form-control"
               placeholder="Food Item"
+              onChange={(e) => setFoodImage(e.target.files[0])}
+              required
             />
           </div>
 
