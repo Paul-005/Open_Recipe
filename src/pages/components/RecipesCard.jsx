@@ -6,6 +6,8 @@ export default function Recipecard({ data }) {
   return (
     <div class="col">
       <div class="card shadow">
+      <img src={data.thumbnail} class="card-img-top"  alt=""/>
+
         <div class="card-body">
           <div className="card-title text-center fw-bold h2">
             {data.recipeName}

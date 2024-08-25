@@ -88,6 +88,10 @@ export default function OneRecipe() {
                 </div>
               </section>
 
+              <section>
+                <img src={recipeData.thumbnail} />
+              </section>
+
               {/* Incredeints */}
               <section className="my-4">
                 <p className="lead">
