@@ -82,7 +82,7 @@ export default function OneRecipe() {
                 </h1>
 
                 <div className="d-sm-flex ">
-                  <p className="lead text-info mx-sm-3 ">
+                  <p className="lead text-info mx-sm-3">
                     By: {recipeData.email}
                   </p>
                 </div>

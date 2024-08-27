@@ -10,6 +10,7 @@ export default function ContentEditingPage() {
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
   const [FoodImg, setFoodImage] = useState();
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -25,11 +26,7 @@ export default function ContentEditingPage() {
 
   const history = useHistory();
 
-  
-
   const publishContent = () => {
-
-
     const formData = new FormData();
     formData.append("recipeName", recipeName);
     formData.append("Incredients", Incredients);
@@ -39,9 +36,10 @@ export default function ContentEditingPage() {
     if (
       recipeName.length === 0 ||
       Incredients.length === 0 ||
-      RecipeContent.length === 0
+      RecipeContent.length === 0 ||
+      FoodImg === undefined
     )
-      setError("No Content To Publish");
+      setError("Please fill all forms..");
     else if (
       localStorage.getItem("name") == null ||
       localStorage.getItem("username") == null
@@ -56,7 +54,7 @@ export default function ContentEditingPage() {
           token: localStorage.getItem("jwt"),
         },
         url: `${React_Backend}/new-recipe-post`,
-        data: formData
+        data: formData,
       })
         .then(() => {
           history.push("/recipes");
@@ -98,14 +96,38 @@ export default function ContentEditingPage() {
             </div>
           )}
 
+          {imagePreviewUrl && (
+            <div>
+              <img
+                src={imagePreviewUrl}
+                alt="Selected"
+                style={{ width: "300px", height: "auto" }}
+              />
+            </div>
+          )}
+
           <div className="col-sm-6">
             <label className="form-label">Food Image</label>
             <input
               type="file"
-              accept=" image/jpeg, image/png"
+              name="foodImage"
+              accept=" image/jpeg, image/jpg"
               className="form-control"
               placeholder="Food Item"
-              onChange={(e) => setFoodImage(e.target.files[0])}
+              onChange={(e) => {
+                var file = e.target.files[0];
+                setFoodImage(file);
+                if (file) {
+                  if (file.type === "image/jpeg" || file.type === "image/jpg") {
+                    const imageUrl = URL.createObjectURL(file);
+                    setImagePreviewUrl(imageUrl);
+                    setError("");
+                  } else {
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:1854334933.
+                    setError("Currently we only support jpeg images")
+                  }
+                }
+              }}
               required
             />
           </div>
