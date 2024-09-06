@@ -1,5 +1,5 @@
 // production
-export const React_Backend = "https://open-recipe-backend.vercel.app";
+export const React_Backend = "https://open-recipe-backend-ogh2.onrender.com";
 
 // development on gitpod
 // export const React_Backend =
