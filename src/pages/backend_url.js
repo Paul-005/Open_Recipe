@@ -1,5 +1,5 @@
 // production
-export const React_Backend = "https://open-recipe-backend-ogh2.onrender.com";
+export const React_Backend = "https://app-4ddcc6e4-fe74-45bf-ad79-2be7159fb2d4.cleverapps.io";
 
 // development on gitpod
 // export const React_Backend =
