@@ -1,5 +1,4 @@
-// new one
-
+import React from "react";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
@@ -54,24 +53,33 @@ export default function ProfilePageT() {
     getUsersRecipe();
   }, []);
 
-  const deleteRecipe = (id) => {
+  const deleteRecipe = async (id) => {
     setPending(true);
-    console.log(`${React_Backend}/recipes/${id}/delete`);
-
-    axios
-      .get(`${React_Backend}/recipes/${id}/delete`, {
+    setError("");
+    
+    try {
+      console.log("Deleting recipe with ID:", id);
+      console.log("Full URL:", `${React_Backend}/recipes/${id}`);
+      
+      const response = await axios.delete(`${React_Backend}/recipes/${id}`, {
         headers: {
           token: localStorage.getItem("jwt"),
         },
-      })
-      .then(() => {
-        setPending(false);
-        getUsersRecipe();
-      })
-      .catch((err) => {
-        setError(err.message);
-        setPending(false);
       });
+      
+      console.log("Delete response:", response.data);
+      
+      if (response.data.message) {
+        // Success - refresh the recipe list
+        await getUsersRecipe();
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      console.error("Error response:", err.response?.data);
+      setError(err.response?.data?.error || "Failed to delete recipe");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -110,94 +118,89 @@ export default function ProfilePageT() {
               Sign Out
             </button>
             {/* User's Added Recipes */}
-
-              {pending ? (
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              ) :  <span className="d-block text-center">
-              <div
-                className="card shadow m-4"
-                
-              >
-                <div class="card-header">
-                  <span className=" text-center fw-bold m-5">Your Recipes</span>
-                </div>
-                {usersRecipe.length !== 0 &&
-                  usersRecipe.map((data) => (
-                    <>
-                      <div
-                        class="modal fade"
-                        id="exampleModal"
-                        tabindex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
-                      >
-                        <div class="modal-dialog">
-                          <div class="modal-content ">
-                            <div class="modal-header">
-                              <h5
-                                class="modal-title text-danger"
-                                id="exampleModalLabel"
-                              >
-                                Delete Recipe
-                              </h5>
-                              <button
-                                type="button"
-                                class="btn-dander"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                              ></button>
-                            </div>
-                            <div class="modal-body text-danger">
-                              <p className="title">{data.recipe}</p>
-                              Are you sure you want to delete this recipe?
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                type="button"
-                                class="btn btn-success"
-                                data-bs-dismiss="modal"
-                              >
-                                Close
-                              </button>
-                              <button
-                                type="button"
-                                class="btn btn-danger"
-                                data-bs-dismiss="modal"
-                                onClick={() => deleteRecipe(data._id)}
-                              >
-                                Delete
-                              </button>
+            {pending ? (
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              <span className="d-block text-center">
+                <div className="card shadow m-4">
+                  <div className="card-header">
+                    <span className="text-center fw-bold m-5">Your Recipes</span>
+                  </div>
+                  {usersRecipe.length !== 0 &&
+                    usersRecipe.map((data) => (
+                      <>
+                        <div
+                          className="modal fade"
+                          id={`deleteModal-${data.recipe_id}`}
+                          tabIndex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
+                          <div className="modal-dialog">
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h5
+                                  className="modal-title text-danger"
+                                  id="exampleModalLabel"
+                                >
+                                  Delete Recipe
+                                </h5>
+                                <button
+                                  type="button"
+                                  className="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                ></button>
+                              </div>
+                              <div className="modal-body text-danger">
+                                <p className="title">{data.recipe}</p>
+                                Are you sure you want to delete this recipe?
+                              </div>
+                              <div className="modal-footer">
+                                <button
+                                  type="button"
+                                  className="btn btn-success"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Close
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  data-bs-dismiss="modal"
+                                  onClick={() => deleteRecipe(data.recipe_id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <ul class="list-group list-group-flush p-3">
-                        <li class=" d-flex justify-content-center align-items-start">
-                          <div
-                            onClick={() => history.push(`/recipe/${data._id}`)}
-                            class="ms-2 me-auto"
-                          >
-                            <div class="fw-bold">{data.recipe}</div>
-                          </div>
-                          <span
-                            // data-bs-toggle="modal" data-bs-target="#exampleModal"
-                            class="badge bg-danger rounded-pill"
-                            data-bs-toggle="modal"
-                            data-bs-target="#exampleModal"
-                          >
-                            <i class="bi bi-trash-fill"></i>
-                          </span>
-                        </li>
-                      </ul>
-                    </>
-                  ))}
-              </div>
-            </span>
-}
-           
+                        <ul className="list-group list-group-flush p-3">
+                          <li className="d-flex justify-content-center align-items-start">
+                            <div
+                              onClick={() => history.push(`/recipe/${data.recipe_id}`)}
+                              className="ms-2 me-auto"
+                            >
+                              <div className="fw-bold">{data.recipe}</div>
+                            </div>
+                            <span
+                              className="badge bg-danger rounded-pill"
+                              data-bs-toggle="modal"
+                              data-bs-target={`#deleteModal-${data.recipe_id}`}
+                            >
+                              <i className="bi bi-trash-fill"></i>
+                            </span>
+                          </li>
+                        </ul>
+                      </>
+                    ))}
+                </div>
+              </span>
+            )}
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 //file imports
@@ -20,7 +21,7 @@ export default function App() {
         <Route exact path="/" component={Home} />
         <Route path="/login" component={LoginPage} />
         <Route path="/signup" component={SignUp} />
-        <Route path="/content-editing" component={ContentEditingPage} />
+        <Route path="/new-recipe" component={ContentEditingPage} />
         <Route path="/recipes" component={Recipes} />
         <Route path="/recipe/:id" component={OneRecipe} />
         <Route path="/profile" component={ProfilePage} />

@@ -1,194 +1,153 @@
+import React, { useState } from "react";
 import Footer from "../components/Footer";
-
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 import { React_Backend } from "../backend_url";
+import "./homepage.css";
 
 export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
-  const [Incredients, setIncredients] = useState("");
-  const [RecipeContent, setRecipeContent] = useState("");
-  const [FoodImg, setFoodImage] = useState();
+  const [ingredients, setIngredients] = useState("");
+  const [recipeContent, setRecipeContent] = useState("");
+  const [foodImg, setFoodImage] = useState();
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-
-  function verifyUser() {
-    if (!localStorage.getItem("jwt")) {
-      history.push("/login");
-    }
-  }
-  useEffect(() => {
-    verifyUser();
-  }, []);
-
   const history = useHistory();
 
   const publishContent = () => {
     const formData = new FormData();
     formData.append("recipeName", recipeName);
-    formData.append("Incredients", Incredients);
-    formData.append("RecipeContent", RecipeContent);
-    formData.append("FoodImg", FoodImg);
+    formData.append("Incredients", ingredients);
+    formData.append("RecipeContent", recipeContent);
+    formData.append("FoodImg", foodImg);
 
-    if (
-      recipeName.length === 0 ||
-      Incredients.length === 0 ||
-      RecipeContent.length === 0 ||
-      FoodImg === undefined
-    )
-      setError("Please fill all forms..");
-    else if (
-      localStorage.getItem("name") == null ||
-      localStorage.getItem("username") == null
-    )
-      setError("Please Login To Retrieve Your Name And Email");
-    else {
-      setError("");
-      setPending(true);
-      axios({
-        method: "post",
-        headers: {
-          token: localStorage.getItem("jwt"),
-        },
-        url: `${React_Backend}/new-recipe-post`,
-        data: formData,
-      })
-        .then(() => {
-          history.push("/recipes");
-          setPending(false);
-        })
-        .catch((e) => setError(e.message));
+    if (!recipeName || !ingredients || !recipeContent || !foodImg) {
+      setError("Please fill all required fields");
+      return;
     }
+
+    if (!localStorage.getItem("name") || !localStorage.getItem("username")) {
+      setError("Please login to share your recipe");
+      return;
+    }
+
+    setError("");
+    setPending(true);
+    const token = localStorage.getItem("jwt");
+    
+    axios({
+      method: "post",
+      headers: { token },
+      url: `${React_Backend}/recipes/new`,
+      data: formData,
+    })
+      .then(() => {
+        history.push("/recipes");
+        setPending(false);
+      })
+      .catch((e) => {
+        setError(e.response?.data?.error || e.message);
+        setPending(false);
+      });
   };
+
   return (
-    <>
-      <div className="container">
-        <main>
-          <div className="py-5 text-center">
-            <img
-              className="d-block mx-auto mb-4"
-              src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
-              alt=""
-              width="100"
-              height="100"
-            />
-            <h2>Open Recipe</h2>
-            <p className="lead">Write Your Recipe Here</p>
-          </div>
+    <div className="content-page">
+      <div className="container py-5">
+        <div className="row justify-content-center">
+          <div className="col-lg-8">
+            <div className="recipe-form">
+              <h2 className="section-title">Share Your Recipe</h2>
+              
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
 
-          {error && (
-            <div class="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
-          {pending && (
-            <div className="d-flex justify-content-center">
-              <div
-                class="spinner-border"
-                style={{ height: 100, width: 100, color: "orange" }}
-                role="status"
-              >
-                <span class="visually-hidden">Loading...</span>
+              {pending && (
+                <div className="loading-spinner">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label className="form-label">Recipe Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={recipeName}
+                  onChange={(e) => setRecipeName(e.target.value)}
+                  placeholder="Enter recipe name"
+                />
               </div>
-            </div>
-          )}
 
-          {imagePreviewUrl && (
-            <div>
-              <img
-                src={imagePreviewUrl}
-                alt="Selected"
-                style={{ width: "300px", height: "auto" }}
-              />
-            </div>
-          )}
+              <div className="form-group">
+                <label className="form-label">Recipe Image</label>
+                <div className="image-upload-container">
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept="image/jpeg, image/jpg"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setFoodImage(file);
+                      if (file) {
+                        if (file.type === "image/jpeg" || file.type === "image/jpg") {
+                          const imageUrl = URL.createObjectURL(file);
+                          setImagePreviewUrl(imageUrl);
+                          setError("");
+                        } else {
+                          setError("Please upload a JPEG or JPG image");
+                        }
+                      }
+                    }}
+                  />
+                  {imagePreviewUrl && (
+                    <div className="image-preview">
+                      <img src={imagePreviewUrl} alt="Preview" />
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          <div className="col-sm-6">
-            <label className="form-label">Food Image</label>
-            <input
-              type="file"
-              name="foodImage"
-              accept=" image/jpeg, image/jpg"
-              className="form-control"
-              placeholder="Food Item"
-              onChange={(e) => {
-                var file = e.target.files[0];
-                setFoodImage(file);
-                if (file) {
-                  if (file.type === "image/jpeg" || file.type === "image/jpg") {
-                    const imageUrl = URL.createObjectURL(file);
-                    setImagePreviewUrl(imageUrl);
-                    setError("");
-                  } else {
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:1854334933.
-                    setError("Currently we only support jpeg images")
-                  }
-                }
-              }}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label className="form-label">Ingredients</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  value={ingredients}
+                  onChange={(e) => setIngredients(e.target.value)}
+                  placeholder="List ingredients (one per line)"
+                />
+              </div>
 
-          <div className="row g-3">
-            <div className="col-sm-6">
-              <label className="form-label">Recipe Name</label>
-              <input
-                onChange={(e) => setRecipeName(e.target.value)}
-                type="text"
-                className="form-control"
-                placeholder="Food Item"
-                value={recipeName}
-                required
-              />
-            </div>
-          </div>
+              <div className="form-group">
+                <label className="form-label">Recipe Instructions</label>
+                <textarea
+                  className="form-control"
+                  rows="8"
+                  value={recipeContent}
+                  onChange={(e) => setRecipeContent(e.target.value)}
+                  placeholder="Write your recipe instructions here..."
+                />
+              </div>
 
-          <div className="col-12">
-            <label htmlFor="text" className="form-label">
-              Incredients
-            </label>
-
-            <div className="d-sm-flex">
-              <textarea
-                onChange={(e) => setIncredients(e.target.value)}
-                className="form-control"
-                row="6"
-                placeholder="Cheese, Egg etc"
-              />
-
-              {/* <input
-                type="time"
-                className="form-control mx-3"
-                style={{ width: "30%" }}
-              /> */}
+              <button
+                className="cta-button"
+                onClick={publishContent}
+                disabled={pending}
+              >
+                {pending ? "Publishing..." : "Publish Recipe"}
+              </button>
             </div>
           </div>
-
-          <div className="mb-3">
-            <label for="exampleFormControlTextarea1" className="form-label">
-              Enter Your Recipe
-            </label>
-            <textarea
-              onChange={(e) => setRecipeContent(e.target.value)}
-              className="form-control"
-              id="exampleFormControlTextarea1"
-              rows="20"
-              placeholder="Recipe Here"
-            />
-          </div>
-          <button
-            className="  btn btn-primary m-4 "
-            type="submit"
-            onClick={publishContent}
-          >
-            Publish
-          </button>
-        </main>
-      </div>{" "}
+        </div>
+      </div>
       <Footer />
-    </>
+    </div>
   );
 }
