@@ -3,66 +3,128 @@ import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
-import { React_Backend } from "../backend_url";
+import { React_Backend } from "../backend_url"; // Assuming this holds your backend URL
 
 export default function ContentEditingPage() {
   const [recipeName, setRecipeName] = useState("");
   const [Incredients, setIncredients] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
-  const [FoodImg, setFoodImage] = useState();
+  const [FoodImg, setFoodImage] = useState(null); // Initialize with null
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  const history = useHistory(); // Initialize useHistory here
+
+  // Cloudinary credentials (replace with your actual values)
+  const CLOUDINARY_CLOUD_NAME = 'dqboa6lkh'; // Your Cloudinary cloud name
+  const CLOUDINARY_UPLOAD_PRESET = 'Open Recipe'; // Your unsigned upload preset
+
+  useEffect(() => {
+    verifyUser();
+  }, []);
 
   function verifyUser() {
     if (!localStorage.getItem("jwt")) {
       history.push("/login");
     }
   }
-  useEffect(() => {
-    verifyUser();
-  }, []);
 
-  const history = useHistory();
+  // This function is now specifically for uploading to Cloudinary
+  const uploadImageToCloudinary = async (file) => {
+    if (!file) return null; // Handle case where no file is selected
 
-  const publishContent = () => {
     const formData = new FormData();
-    formData.append("recipeName", recipeName);
-    formData.append("Incredients", Incredients);
-    formData.append("RecipeContent", RecipeContent);
-    formData.append("FoodImg", FoodImg);
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    if (
-      recipeName.length === 0 ||
-      Incredients.length === 0 ||
-      RecipeContent.length === 0 ||
-      FoodImg === undefined
-    )
-      setError("Please fill all forms..");
-    else if (
-      localStorage.getItem("name") == null ||
-      localStorage.getItem("username") == null
-    )
-      setError("Please Login To Retrieve Your Name And Email");
-    else {
-      setError("");
-      setPending(true);
-      axios({
-        method: "post",
-        headers: {
-          token: localStorage.getItem("jwt"),
-        },
-        url: `${React_Backend}/new-recipe-post`,
-        data: formData,
-      })
-        .then(() => {
-          history.push("/recipes");
-          setPending(false);
-        })
-        .catch((e) => setError(e.message));
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data.secure_url; // Cloudinary returns 'secure_url' for HTTPS
+    } catch (uploadError) {
+      console.error("Error uploading image to Cloudinary:", uploadError);
+      setError("Failed to upload image. Please try again.");
+      throw uploadError; // Re-throw to be caught by publishContent
     }
   };
+
+  const publishContent = async () => {
+    // Clear previous errors
+    setError("");
+
+    // 1. Basic Form Validation
+    if (
+      !recipeName ||
+      !Incredients ||
+      !RecipeContent ||
+      !FoodImg
+    ) {
+      setError("Please fill all forms and select an image.");
+      return;
+    }
+
+    // 2. User Authentication Check
+    if (
+      localStorage.getItem("name") === null ||
+      localStorage.getItem("username") === null
+    ) {
+      setError("Please Login To Retrieve Your Name And Email.");
+      return;
+    }
+
+    setPending(true); // Start pending state
+
+    try {
+      // 3. Upload Image to Cloudinary
+      const imageUrl = await uploadImageToCloudinary(FoodImg);
+
+      if (!imageUrl) {
+        setError("Image upload failed. Cannot publish content.");
+        setPending(false);
+        return;
+      }
+
+      // 4. Prepare data for backend
+      const postData = {
+        recipeName,
+        Incredients,
+        RecipeContent,
+        thumbnail: imageUrl, // Send the Cloudinary URL to your backend
+        // Assuming your backend expects author information from JWT or context
+      };
+
+      // 5. Send data to your backend
+      await axios.post(
+        `${React_Backend}/recipes/new`,
+        postData, // Send as JSON, not FormData, if backend is expecting JSON
+        {
+          headers: {
+            token: localStorage.getItem("jwt"),
+            'Content-Type': 'application/json', // Specify content type for JSON
+          },
+        }
+      );
+
+      // 6. On success
+      history.push("/recipes");
+
+    } catch (e) {
+      console.error("Error publishing content:", e);
+      setError(e.message || "An error occurred while publishing content.");
+    } finally {
+      setPending(false); // End pending state
+    }
+  };
+
   return (
     <>
       <div className="container">
@@ -80,18 +142,18 @@ export default function ContentEditingPage() {
           </div>
 
           {error && (
-            <div class="alert alert-danger" role="alert">
+            <div className="alert alert-danger" role="alert">
               {error}
             </div>
           )}
           {pending && (
             <div className="d-flex justify-content-center">
               <div
-                class="spinner-border"
+                className="spinner-border"
                 style={{ height: 100, width: 100, color: "orange" }}
                 role="status"
               >
-                <span class="visually-hidden">Loading...</span>
+                <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           )}
@@ -111,21 +173,25 @@ export default function ContentEditingPage() {
             <input
               type="file"
               name="foodImage"
-              accept=" image/jpeg, image/jpg"
+              accept="image/jpeg, image/jpg"
               className="form-control"
               placeholder="Food Item"
               onChange={(e) => {
-                var file = e.target.files[0];
+                const file = e.target.files[0];
                 setFoodImage(file);
                 if (file) {
                   if (file.type === "image/jpeg" || file.type === "image/jpg") {
                     const imageUrl = URL.createObjectURL(file);
                     setImagePreviewUrl(imageUrl);
-                    setError("");
+                    setError(""); // Clear error if image type is correct
                   } else {
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:1854334933.
-                    setError("Currently we only support jpeg images")
+                    setImagePreviewUrl(null); // Clear preview for invalid file type
+                    setFoodImage(null); // Don't set the invalid file
+                    setError("Currently we only support JPEG images");
                   }
+                } else {
+                  setImagePreviewUrl(null); // Clear preview if no file is selected
+                  setFoodImage(null);
                 }
               }}
               required
@@ -155,20 +221,15 @@ export default function ContentEditingPage() {
               <textarea
                 onChange={(e) => setIncredients(e.target.value)}
                 className="form-control"
-                row="6"
+                rows="6" // Changed row to rows for correct HTML attribute
                 placeholder="Cheese, Egg etc"
+                value={Incredients}
               />
-
-              {/* <input
-                type="time"
-                className="form-control mx-3"
-                style={{ width: "30%" }}
-              /> */}
             </div>
           </div>
 
           <div className="mb-3">
-            <label for="exampleFormControlTextarea1" className="form-label">
+            <label htmlFor="exampleFormControlTextarea1" className="form-label">
               Enter Your Recipe
             </label>
             <textarea
@@ -177,17 +238,19 @@ export default function ContentEditingPage() {
               id="exampleFormControlTextarea1"
               rows="20"
               placeholder="Recipe Here"
+              value={RecipeContent}
             />
           </div>
           <button
-            className="  btn btn-primary m-4 "
+            className="btn btn-primary m-4"
             type="submit"
             onClick={publishContent}
+            disabled={pending} // Disable button while pending
           >
-            Publish
+            {pending ? "Publishing..." : "Publish"}
           </button>
         </main>
-      </div>{" "}
+      </div>
       <Footer />
     </>
   );

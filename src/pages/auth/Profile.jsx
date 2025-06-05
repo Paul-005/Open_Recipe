@@ -56,10 +56,9 @@ export default function ProfilePageT() {
 
   const deleteRecipe = (id) => {
     setPending(true);
-    console.log(`${React_Backend}/recipes/${id}/delete`);
 
     axios
-      .get(`${React_Backend}/recipes/${id}/delete`, {
+      .delete(`${React_Backend}/recipes/${id}/`, {
         headers: {
           token: localStorage.getItem("jwt"),
         },
@@ -94,31 +93,21 @@ export default function ProfilePageT() {
             />
             <h2 className="mb-0">{user.name}</h2>
             <p className="text-muted">{user.email}</p>
-            {/* <!-- Followers and Following --> */}
-            <div className="d-flex justify-content-around mb-4">
-              <div>
-                <span className="h4 d-block">123</span>
-                Followers
-              </div>
-              <div>
-                <span className="h4 d-block">456</span>
-                Following
-              </div>
-            </div>
+
             {/* Sign Out Button */}
             <button className="btn btn-danger" onClick={signOut}>
               Sign Out
             </button>
             {/* User's Added Recipes */}
 
-              {pending ? (
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              ) :  <span className="d-block text-center">
+            {pending ? (
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : <span className="d-block text-center">
               <div
                 className="card shadow m-4"
-                
+
               >
                 <div class="card-header">
                   <span className=" text-center fw-bold m-5">Your Recipes</span>
@@ -165,7 +154,7 @@ export default function ProfilePageT() {
                                 type="button"
                                 class="btn btn-danger"
                                 data-bs-dismiss="modal"
-                                onClick={() => deleteRecipe(data._id)}
+                                onClick={() => deleteRecipe(data.recipe_id)}
                               >
                                 Delete
                               </button>
@@ -196,8 +185,8 @@ export default function ProfilePageT() {
                   ))}
               </div>
             </span>
-}
-           
+            }
+
           </div>
         </div>
       </div>
