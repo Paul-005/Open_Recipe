@@ -10,7 +10,6 @@ import Recipes from "./pages/recipes/recipes";
 import OneRecipe from "./pages/recipes/OneRecipe";
 import ProfilePage from "./pages/auth/Profile";
 import Navbar from "./pages/components/NavBar";
-import ProfilePageT from "./pages/auth/Profile-drfat";
 
 export default function App() {
   return (

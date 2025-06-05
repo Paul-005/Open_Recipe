@@ -173,21 +173,21 @@ export default function ContentEditingPage() {
             <input
               type="file"
               name="foodImage"
-              accept="image/jpeg, image/jpg"
+              accept="image/jpeg, image/jpg, image/png"
               className="form-control"
               placeholder="Food Item"
               onChange={(e) => {
                 const file = e.target.files[0];
                 setFoodImage(file);
                 if (file) {
-                  if (file.type === "image/jpeg" || file.type === "image/jpg") {
+                  if (file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png") {
                     const imageUrl = URL.createObjectURL(file);
                     setImagePreviewUrl(imageUrl);
                     setError(""); // Clear error if image type is correct
                   } else {
                     setImagePreviewUrl(null); // Clear preview for invalid file type
                     setFoodImage(null); // Don't set the invalid file
-                    setError("Currently we only support JPEG images");
+                    setError("Currently we only support JPEG and PNG images");
                   }
                 } else {
                   setImagePreviewUrl(null); // Clear preview if no file is selected
