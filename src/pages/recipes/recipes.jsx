@@ -100,11 +100,11 @@ const RecipeCard = ({ data }) => {
           Recipe
         </div>
       </div>
-      
+
       <div style={contentStyle}>
         <h3 style={titleStyle}>{data.recipeName}</h3>
         <p style={descriptionStyle}>{data.RecipeContent}</p>
-        
+
         <button
           style={buttonStyle}
           onClick={() => history.push(`/recipe/${data._id}`)}
@@ -159,7 +159,8 @@ export default function Recipes() {
     fontSize: 'clamp(2.5rem, 5vw, 4rem)',
     fontWeight: '800',
     marginBottom: '1rem',
-    textShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+    textShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    color: 'white'
   };
 
   const heroSubtitleStyle = {
@@ -244,14 +245,14 @@ export default function Recipes() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         {/* Hero Section */}
         <section style={heroStyle}>
           <div style={decorativeCircle1}></div>
           <div style={decorativeCircle2}></div>
-          
-          <div className="container" style={{ position: 'relative', zIndex: 10 }}>
+
+          <div className="container" style={{ position: 'relative', zIndex: 10, color: 'white' }}>
             <h1 style={heroTitleStyle}>
               <i className="bi bi-book me-3"></i>
               Recipe Collection

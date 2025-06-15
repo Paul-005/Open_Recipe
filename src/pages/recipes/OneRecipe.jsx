@@ -88,7 +88,8 @@ export default function OneRecipe() {
     fontSize: 'clamp(2rem, 4vw, 3.5rem)',
     fontWeight: '800',
     marginBottom: '1rem',
-    textShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+    textShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    color: 'white'
   };
 
   const authorStyle = {
@@ -183,7 +184,7 @@ export default function OneRecipe() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         {/* Hero Section */}
         <section style={heroStyle}>
@@ -201,7 +202,7 @@ export default function OneRecipe() {
               <i className="bi bi-arrow-left me-2"></i>
               Back to Recipes
             </button>
-            
+
             {!loading && recipeData.recipeName && (
               <>
                 <h1 style={titleStyle}>{recipeData.recipeName}</h1>
@@ -299,7 +300,7 @@ export default function OneRecipe() {
                   <i className="bi bi-arrow-left me-2"></i>
                   Browse More Recipes
                 </button>
-                
+
                 <button
                   onClick={() => history.push("/content-editing")}
                   style={{
@@ -328,6 +329,7 @@ export default function OneRecipe() {
                   Share Your Recipe
                 </button>
               </div>
+              <div style={{ paddingBottom: '3rem' }}></div>
             </>
           )}
         </div>

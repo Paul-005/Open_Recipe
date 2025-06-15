@@ -12,8 +12,10 @@ export default function ProfilePage() {
 
   const getUserInfo = () => {
     const json = localStorage.getItem("user");
-    const parsedData = JSON.parse(json);
-    setUser(parsedData);
+    if (json) {
+      const parsedData = JSON.parse(json);
+      setUser(parsedData);
+    }
   };
 
   const getUsersRecipe = async () => {
@@ -22,12 +24,16 @@ export default function ProfilePage() {
       const recipes = await axios.get(`${React_Backend}/get-users-recipe`, {
         headers: { token: localStorage.getItem("jwt") },
       });
-      setUsersRecipe(recipes.data.recipe);
+      if (recipes.data && recipes.data.recipe) {
+        setUsersRecipe(recipes.data.recipe);
+      } else {
+        setUsersRecipe([]);
+      }
       setPending(false);
-      console.log(recipes.data.recipe);
     } catch (error) {
       setError(error.message);
       setPending(false);
+      setUsersRecipe([]);
     }
   };
 
@@ -146,7 +152,8 @@ export default function ProfilePage() {
   const cardTitleStyle = {
     fontSize: '1.5rem',
     fontWeight: '700',
-    margin: 0
+    margin: 0,
+    color: 'white'
   };
 
   const recipeItemStyle = {
