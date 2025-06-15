@@ -1,386 +1,51 @@
 import React, { useEffect, useState } from "react";
-
-// Recipe Card Component with glassmorphism and reflection effects
-const RecipeCard = ({ item, index }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const cardStyle = {
-    position: 'relative',
-    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-    transition: 'all 0.7s ease',
-    animationDelay: `${index * 150}ms`,
-    animation: 'fadeInUp 0.8s ease-out forwards',
-    opacity: 0
-  };
-
-  const glassCardStyle = {
-    position: 'relative',
-    background: isHovered ? 'rgba(0, 0, 0, 0.05)' : 'rgba(0, 0, 0, 0.02)', // Adjusted for white background
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(0, 0, 0, 0.1)', // Adjusted for white background
-    borderRadius: '24px',
-    padding: '24px',
-    boxShadow: isHovered ? '0 35px 60px -12px rgba(0, 0, 0, 0.2)' : '0 25px 50px -12px rgba(0, 0, 0, 0.1)', // Adjusted for white background
-    transition: 'all 0.5s ease',
-    marginBottom: '24px'
-  };
-
-  const reflectionStyle = {
-    position: 'absolute',
-    bottom: '-24px',
-    left: '0',
-    right: '0',
-    height: '100%',
-    opacity: '0.1', // Reduced opacity for white background
-    transform: 'scaleY(-1)',
-    filter: 'blur(2px)',
-    pointerEvents: 'none',
-    background: 'linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent)', // Adjusted for white background
-    borderRadius: '24px'
-  };
-
-  const imageContainerStyle = {
-    position: 'relative',
-    overflow: 'hidden',
-    borderRadius: '16px',
-    marginBottom: '24px',
-    boxShadow: isHovered ? '0 20px 40px rgba(0, 0, 0, 0.2)' : '0 10px 20px rgba(0, 0, 0, 0.1)', // Adjusted for white background
-    transition: 'all 0.5s ease'
-  };
-
-  const imageStyle = {
-    width: '100%',
-    height: '256px',
-    objectFit: 'cover',
-    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-    transition: 'transform 0.7s ease'
-  };
-
-  const badgeStyle = {
-    position: 'absolute',
-    top: '16px',
-    right: '16px',
-    background: 'rgba(0, 0, 0, 0.7)', // Changed to black background for contrast
-    backdropFilter: 'blur(10px)',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    color: 'white', // Changed to white text
-    fontSize: '14px',
-    fontWeight: '500',
-    border: '1px solid rgba(0, 0, 0, 0.3)' // Adjusted for white background
-  };
-
-  const titleStyle = {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: isHovered ? 'black' : '#4B5563', // Changed text color
-    marginBottom: '12px',
-    transition: 'color 0.3s ease'
-  };
-
-  const contentStyle = {
-    color: '#4B5563', // Changed text color
-    lineHeight: '1.6',
-    marginBottom: '24px',
-    display: '-webkit-box',
-    WebkitLineClamp: 4,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden'
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    padding: '12px 24px',
-    borderRadius: '12px',
-    fontWeight: '600',
-    border: 'none',
-    cursor: 'pointer',
-    background: isHovered 
-      ? 'linear-gradient(to right, #FBBF24, #F97316)' 
-      : 'rgba(0, 0, 0, 0.1)', // Adjusted for white background
-    color: isHovered ? 'black' : 'black', // Changed text color to black
-    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-    boxShadow: isHovered ? '0 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
-    transition: 'all 0.3s ease'
-  };
-
-  return (
-    <div 
-      style={cardStyle}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Reflection Effect */}
-      <div style={reflectionStyle}></div>
-      
-      {/* Main Card */}
-      <div style={glassCardStyle}>
-        {/* Image Container */}
-        <div style={imageContainerStyle}>
-          <img 
-            src={item.img} 
-            alt={item.name}
-            style={imageStyle}
-          />
-          {/* Floating Badge */}
-          <div style={badgeStyle}>
-            Recipe #{index + 1}
-          </div>
-        </div>
-        
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 10 }}>
-          <h3 style={titleStyle}>
-            {item.name}
-          </h3>
-          <p style={contentStyle}>
-            {item.content}
-          </p>
-          
-          {/* Action Button */}
-          <button style={buttonStyle}>
-            View Recipe
-          </button>
-        </div>
-        
-        {/* Decorative Elements */}
-        <div style={{
-          position: 'absolute',
-          top: '24px',
-          left: '24px',
-          width: '8px',
-          height: '8px',
-          background: '#FBBF24',
-          borderRadius: '50%',
-          opacity: '0.6',
-          animation: 'pulse 2s infinite'
-        }}></div>
-        <div style={{
-          position: 'absolute',
-          bottom: '32px',
-          right: '32px',
-          width: '4px',
-          height: '4px',
-          background: '#60A5FA',
-          borderRadius: '50%',
-          opacity: '0.4',
-          animation: 'pulse 2s infinite',
-          animationDelay: '1s'
-        }}></div>
-      </div>
-    </div>
-  );
-};
+import { useHistory } from "react-router-dom";
 
 // Hero Section Component
 const HeroSection = () => {
+  const history = useHistory();
+  
   const heroStyle = {
-    position: 'relative',
-    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fdba74 100%)',
+    minHeight: '90vh',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    position: 'relative',
     overflow: 'hidden'
   };
 
-  const backgroundStyle = {
+  const decorativeCircle1 = {
     position: 'absolute',
-    inset: '0',
-    background: 'white' // Changed to white
+    top: '10%',
+    right: '10%',
+    width: '200px',
+    height: '200px',
+    borderRadius: '50%',
+    background: 'rgba(242, 117, 10, 0.1)',
+    filter: 'blur(40px)',
+    animation: 'float 6s ease-in-out infinite'
   };
 
-  const contentStyle = {
-    position: 'relative',
-    zIndex: 10,
-    textAlign: 'center',
-    padding: '0 24px',
-    maxWidth: '1200px',
-    margin: '0 auto'
-  };
-
-  const titleStyle = {
-    fontSize: 'clamp(3rem, 8vw, 6rem)',
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: '24px',
-    background: 'linear-gradient(to right, #FBBF24, #EC4899, #EF4444)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'black', // Changed to black
-    animation: 'pulse 3s infinite'
-  };
-
-  const subtitleStyle = {
-    fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-    color: 'black', // Changed to black
-    maxWidth: '600px',
-    margin: '0 auto 48px auto',
-    lineHeight: '1.6'
-  };
-
-  const imageContainerStyle = {
-    position: 'relative',
-    display: 'inline-block'
-  };
-
-  const imageBackgroundStyle = {
+  const decorativeCircle2 = {
     position: 'absolute',
-    inset: '0',
-    background: 'rgba(0, 0, 0, 0.05)', // Adjusted for white background
-    backdropFilter: 'blur(4px)',
-    borderRadius: '24px',
-    transform: 'rotate(3deg) scale(1.05)'
-  };
-
-  const imageStyle = {
-    position: 'relative',
-    zIndex: 10,
-    maxWidth: '400px',
-    width: '100%',
-    borderRadius: '24px',
-    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
-    transform: 'rotate(-2deg)',
-    transition: 'transform 0.7s ease'
+    bottom: '20%',
+    left: '5%',
+    width: '150px',
+    height: '150px',
+    borderRadius: '50%',
+    background: 'rgba(251, 146, 60, 0.15)',
+    filter: 'blur(30px)',
+    animation: 'float 8s ease-in-out infinite reverse'
   };
 
   return (
-    <div style={heroStyle}>
-      {/* Animated Background */}
-      <div style={backgroundStyle}></div>
-      
-      {/* Floating Particles */}
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            width: '8px',
-            height: '8px',
-            background: 'rgba(0, 0, 0, 0.1)', // Changed for white background
-            borderRadius: '50%',
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animation: `pulse ${2 + Math.random() * 3}s infinite`,
-            animationDelay: `${Math.random() * 3}s`
-          }}
-        ></div>
-      ))}
-      
-      <div style={contentStyle}>
-        <div style={{ marginBottom: '48px' }}>
-          <h1 style={titleStyle}>
-            Open Recipe
-          </h1>
-          <p style={subtitleStyle}>
-            Open source your recipe by sharing it with others. They will suggest the changes needed to make it perfect.
-          </p>
-        </div>
-        
-        {/* Hero Image with Glass Effect */}
-        <div style={imageContainerStyle}>
-          <div style={imageBackgroundStyle}></div>
-          <img
-            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
-            style={imageStyle}
-            alt="Open Recipe"
-            onMouseEnter={(e) => e.target.style.transform = 'rotate(0deg)'}
-            onMouseLeave={(e) => e.target.style.transform = 'rotate(-2deg)'}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Main App Component
-export default function Home() {
-  const [items] = useState([
-    {
-      img: "https://images.unsplash.com/photo-1605789538467-f715d58e03f9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8Y2hlZXNlJTIwYnVyZ2VyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-      name: "Cheese Burger",
-      content: "To prepare this easy cheesy burger, put a pan on medium flame and heat oil in it. Once the oil is sufficiently hot, add the chopped onions, carrots, capsicum and saute these ingredients for few minutes. Then add tomato ketchup in it and give it a nice stir."
-    },
-    {
-      img: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmVkJTIwdmVsdmV0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-      name: "Red Velvet",
-      content: "This red velvet cake has been adapted from The New York Times, with slight adjustments to the ingredients and the addition of oil for an even softer, richer and buttery melt-in-your-mouth cake. We tested a few versions with just butter, some with only oil, and some with half a dozen eggs!"
-    },
-    {
-      img: "https://media.istockphoto.com/photos/pilaf-on-a-wooden-background-picture-id934255730?b=1&k=20&m=934255730&s=170667a&w=0&h=9bvWKkR03hKgf5CSgUmaglxI6ctzjZvWdDEG4Bwj7qw=",
-      name: "Chicken Biriyani",
-      content: "Chicken Biryani is a savory chicken and rice dish that includes layers of chicken, rice, and aromatics that are steamed together. The bottom layer of rice absorbs all the chicken juices as it cooks, giving it a tender texture and rich flavor, while the top layer of rice turns out white and fluffy."
-    }
-  ]);
-
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'white' // Changed to white
-  };
-
-  const sectionStyle = {
-    position: 'relative',
-    padding: '80px 24px'
-  };
-
-  const sectionHeaderStyle = {
-    textAlign: 'center',
-    marginBottom: '64px'
-  };
-
-  const sectionTitleStyle = {
-    fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: '24px',
-    background: 'linear-gradient(to right, #FBBF24, #F97316)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'black' // Changed to black
-  };
-
-  const dividerStyle = {
-    width: '96px',
-    height: '4px',
-    background: 'linear-gradient(to right, #FBBF24, #F97316)',
-    margin: '0 auto',
-    borderRadius: '2px'
-  };
-
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: '48px',
-    maxWidth: '1400px',
-    margin: '0 auto'
-  };
-
-  const decorativeStyle1 = {
-    position: 'absolute',
-    top: '40px',
-    left: '40px',
-    width: '128px',
-    height: '128px',
-    background: 'rgba(0, 0, 0, 0.05)', // Adjusted for white background
-    borderRadius: '50%',
-    filter: 'blur(40px)',
-    animation: 'pulse 4s infinite'
-  };
-
-  const decorativeStyle2 = {
-    position: 'absolute',
-    bottom: '40px',
-    right: '40px',
-    width: '160px',
-    height: '160px',
-    background: 'rgba(0, 0, 0, 0.05)', // Adjusted for white background
-    borderRadius: '50%',
-    filter: 'blur(40px)',
-    animation: 'pulse 4s infinite',
-    animationDelay: '2s'
-  };
-
-  return (
-    <div style={containerStyle}>
-      {/* Add keyframe animations */}
+    <>
       <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -391,50 +56,425 @@ export default function Home() {
             transform: translateY(0);
           }
         }
-
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
+        
+        .animate-fade-in-up {
+          animation: fadeInUp 0.8s ease-out;
         }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-          }
+        
+        .animate-delay-200 {
+          animation-delay: 0.2s;
+          animation-fill-mode: both;
+        }
+        
+        .animate-delay-400 {
+          animation-delay: 0.4s;
+          animation-fill-mode: both;
         }
       `}</style>
+      
+      <section style={heroStyle}>
+        <div style={decorativeCircle1}></div>
+        <div style={decorativeCircle2}></div>
+        
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-6">
+              <div className="animate-fade-in-up">
+                <h1 
+                  style={{
+                    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                    fontWeight: '800',
+                    color: '#0f172a',
+                    marginBottom: '1.5rem',
+                    lineHeight: '1.1'
+                  }}
+                >
+                  Share Your
+                  <span 
+                    style={{
+                      background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      display: 'block'
+                    }}
+                  >
+                    Culinary Magic
+                  </span>
+                </h1>
+              </div>
+              
+              <div className="animate-fade-in-up animate-delay-200">
+                <p 
+                  style={{
+                    fontSize: '1.25rem',
+                    color: '#475569',
+                    marginBottom: '2rem',
+                    lineHeight: '1.6',
+                    maxWidth: '500px'
+                  }}
+                >
+                  Open source your recipes and let the community help you perfect them. 
+                  Share, discover, and create amazing dishes together.
+                </p>
+              </div>
+              
+              <div className="animate-fade-in-up animate-delay-400">
+                <div className="d-flex flex-wrap gap-3">
+                  <button
+                    onClick={() => history.push("/recipes")}
+                    style={{
+                      padding: '1rem 2rem',
+                      borderRadius: '1rem',
+                      background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                      color: 'white',
+                      border: 'none',
+                      fontWeight: '600',
+                      fontSize: '1.1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 10px 25px rgba(242, 117, 10, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 15px 35px rgba(242, 117, 10, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
+                    }}
+                  >
+                    <i className="bi bi-search"></i>
+                    Explore Recipes
+                  </button>
+                  
+                  <button
+                    onClick={() => history.push("/content-editing")}
+                    style={{
+                      padding: '1rem 2rem',
+                      borderRadius: '1rem',
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      color: '#f2750a',
+                      border: '2px solid rgba(242, 117, 10, 0.2)',
+                      fontWeight: '600',
+                      fontSize: '1.1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      backdropFilter: 'blur(10px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'white';
+                      e.target.style.borderColor = '#f2750a';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                      e.target.style.borderColor = 'rgba(242, 117, 10, 0.2)';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <i className="bi bi-plus-circle"></i>
+                    Share Recipe
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="col-lg-6">
+              <div 
+                className="animate-fade-in-up animate-delay-200"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '400px',
+                    height: '400px',
+                    maxWidth: '100%'
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: '0',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      borderRadius: '2rem',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      transform: 'rotate(6deg)'
+                    }}
+                  ></div>
+                  <img
+                    src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
+                    alt="Open Recipe"
+                    style={{
+                      position: 'relative',
+                      zIndex: 10,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      borderRadius: '2rem',
+                      filter: 'drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15))'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
 
+// Recipe Card Component
+const RecipeCard = ({ item, index }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const history = useHistory();
+
+  const cardStyle = {
+    background: 'white',
+    borderRadius: '1.5rem',
+    overflow: 'hidden',
+    boxShadow: isHovered ? '0 25px 50px rgba(0, 0, 0, 0.15)' : '0 10px 25px rgba(0, 0, 0, 0.08)',
+    transition: 'all 0.4s ease',
+    transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
+    border: '1px solid rgba(0, 0, 0, 0.05)',
+    cursor: 'pointer',
+    height: '100%'
+  };
+
+  const imageStyle = {
+    width: '100%',
+    height: '250px',
+    objectFit: 'cover',
+    transition: 'transform 0.4s ease'
+  };
+
+  const contentStyle = {
+    padding: '1.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100% - 250px)'
+  };
+
+  const titleStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: '0.75rem',
+    lineHeight: '1.3'
+  };
+
+  const descriptionStyle = {
+    color: '#64748b',
+    lineHeight: '1.6',
+    marginBottom: '1.5rem',
+    flex: 1,
+    display: '-webkit-box',
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
+  };
+
+  const badgeStyle = {
+    position: 'absolute',
+    top: '1rem',
+    right: '1rem',
+    background: 'rgba(242, 117, 10, 0.9)',
+    color: 'white',
+    padding: '0.5rem 1rem',
+    borderRadius: '2rem',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    backdropFilter: 'blur(10px)'
+  };
+
+  const buttonStyle = {
+    background: isHovered ? 'linear-gradient(135deg, #f2750a, #ea580c)' : '#f8fafc',
+    color: isHovered ? 'white' : '#475569',
+    border: 'none',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem'
+  };
+
+  return (
+    <div
+      style={cardStyle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => history.push("/recipes")}
+    >
+      <div style={{ position: 'relative' }}>
+        <img
+          src={item.img}
+          alt={item.name}
+          style={{
+            ...imageStyle,
+            transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+          }}
+        />
+        <div style={badgeStyle}>
+          Featured
+        </div>
+      </div>
+      
+      <div style={contentStyle}>
+        <h3 style={titleStyle}>{item.name}</h3>
+        <p style={descriptionStyle}>{item.content}</p>
+        
+        <button style={buttonStyle}>
+          <i className="bi bi-arrow-right"></i>
+          View Recipe
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Stats Section Component
+const StatsSection = () => {
+  const stats = [
+    { number: '1000+', label: 'Recipes Shared', icon: 'bi-book' },
+    { number: '500+', label: 'Active Cooks', icon: 'bi-people' },
+    { number: '50+', label: 'Countries', icon: 'bi-globe' },
+    { number: '24/7', label: 'Community Support', icon: 'bi-chat-heart' }
+  ];
+
+  const sectionStyle = {
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+    padding: '5rem 0',
+    color: 'white'
+  };
+
+  const statCardStyle = {
+    textAlign: 'center',
+    padding: '2rem 1rem'
+  };
+
+  const iconStyle = {
+    fontSize: '3rem',
+    color: '#f2750a',
+    marginBottom: '1rem'
+  };
+
+  const numberStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    marginBottom: '0.5rem'
+  };
+
+  const labelStyle = {
+    fontSize: '1.1rem',
+    color: '#cbd5e1',
+    fontWeight: '500'
+  };
+
+  return (
+    <section style={sectionStyle}>
+      <div className="container">
+        <div className="row">
+          {stats.map((stat, index) => (
+            <div key={index} className="col-lg-3 col-md-6 mb-4">
+              <div style={statCardStyle}>
+                <i className={stat.icon} style={iconStyle}></i>
+                <div style={numberStyle}>{stat.number}</div>
+                <div style={labelStyle}>{stat.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Main Home Component
+export default function Home() {
+  const [items] = useState([
+    {
+      img: "https://images.unsplash.com/photo-1605789538467-f715d58e03f9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8Y2hlZXNlJTIwYnVyZ2VyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
+      name: "Cheese Burger",
+      content: "To prepare this easy cheesy burger, put a pan on medium flame and heat oil in it. Once the oil is sufficiently hot, add the chopped onions, carrots, capsicum and saute these ingredients for few minutes."
+    },
+    {
+      img: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmVkJTIwdmVsdmV0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
+      name: "Red Velvet Cake",
+      content: "This red velvet cake has been adapted with slight adjustments to the ingredients and the addition of oil for an even softer, richer and buttery melt-in-your-mouth cake."
+    },
+    {
+      img: "https://media.istockphoto.com/photos/pilaf-on-a-wooden-background-picture-id934255730?b=1&k=20&m=934255730&s=170667a&w=0&h=9bvWKkR03hKgf5CSgUmaglxI6ctzjZvWdDEG4Bwj7qw=",
+      name: "Chicken Biryani",
+      content: "Chicken Biryani is a savory chicken and rice dish that includes layers of chicken, rice, and aromatics that are steamed together for rich flavor and tender texture."
+    }
+  ];
+
+  const featuredSectionStyle = {
+    padding: '5rem 0',
+    background: '#fefefe'
+  };
+
+  const sectionHeaderStyle = {
+    textAlign: 'center',
+    marginBottom: '4rem'
+  };
+
+  const sectionTitleStyle = {
+    fontSize: '3rem',
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: '1rem'
+  };
+
+  const sectionSubtitleStyle = {
+    fontSize: '1.25rem',
+    color: '#64748b',
+    maxWidth: '600px',
+    margin: '0 auto'
+  };
+
+  return (
+    <div style={{ background: '#fefefe' }}>
       {/* Hero Section */}
       <HeroSection />
       
-      {/* Recipes Section */}
-      <section style={sectionStyle}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          {/* Section Header */}
+      {/* Stats Section */}
+      <StatsSection />
+      
+      {/* Featured Recipes Section */}
+      <section style={featuredSectionStyle}>
+        <div className="container">
           <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>
-              Featured Recipes
-            </h2>
-            <div style={dividerStyle}></div>
+            <h2 style={sectionTitleStyle}>Featured Recipes</h2>
+            <p style={sectionSubtitleStyle}>
+              Discover amazing recipes shared by our community of passionate cooks from around the world.
+            </p>
           </div>
           
-          {/* Recipe Cards Grid */}
-          <div style={gridStyle}>
+          <div className="row g-4">
             {items.map((item, index) => (
-              <RecipeCard key={index} item={item} index={index} />
+              <div key={index} className="col-lg-4 col-md-6">
+                <RecipeCard item={item} index={index} />
+              </div>
             ))}
           </div>
         </div>
-        
-        {/* Decorative Background Elements */}
-        <div style={decorativeStyle1}></div>
-        <div style={decorativeStyle2}></div>
       </section>
     </div>
   );
