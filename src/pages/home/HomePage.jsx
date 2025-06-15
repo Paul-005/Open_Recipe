@@ -15,12 +15,12 @@ const RecipeCard = ({ item, index }) => {
 
   const glassCardStyle = {
     position: 'relative',
-    background: isHovered ? 'rgba(0, 0, 0, 0.05)' : 'rgba(0, 0, 0, 0.02)', // Adjusted for white background
+    background: isHovered ? 'rgba(0, 0, 0, 0.05)' : 'rgba(0, 0, 0, 0.02)',
     backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(0, 0, 0, 0.1)', // Adjusted for white background
+    border: '1px solid rgba(0, 0, 0, 0.1)',
     borderRadius: '24px',
     padding: '24px',
-    boxShadow: isHovered ? '0 35px 60px -12px rgba(0, 0, 0, 0.2)' : '0 25px 50px -12px rgba(0, 0, 0, 0.1)', // Adjusted for white background
+    boxShadow: isHovered ? '0 35px 60px -12px rgba(0, 0, 0, 0.2)' : '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
     transition: 'all 0.5s ease',
     marginBottom: '24px'
   };

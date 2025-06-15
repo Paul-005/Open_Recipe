@@ -231,7 +231,7 @@ export default function ProfilePage() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         <div className="container">
           {/* Profile Header */}
