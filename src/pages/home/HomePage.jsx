@@ -95,8 +95,8 @@ const RecipeCard = ({ item, index }) => {
     fontWeight: '600',
     border: 'none',
     cursor: 'pointer',
-    background: isHovered 
-      ? 'linear-gradient(to right, #FBBF24, #F97316)' 
+    background: isHovered
+      ? 'linear-gradient(to right, #FBBF24, #F97316)'
       : 'rgba(0, 0, 0, 0.1)', // Adjusted for white background
     color: isHovered ? 'black' : 'black', // Changed text color to black
     transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
@@ -105,20 +105,20 @@ const RecipeCard = ({ item, index }) => {
   };
 
   return (
-    <div 
+    <div
       style={cardStyle}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Reflection Effect */}
       <div style={reflectionStyle}></div>
-      
+
       {/* Main Card */}
       <div style={glassCardStyle}>
         {/* Image Container */}
         <div style={imageContainerStyle}>
-          <img 
-            src={item.img} 
+          <img
+            src={item.img}
             alt={item.name}
             style={imageStyle}
           />
@@ -127,7 +127,7 @@ const RecipeCard = ({ item, index }) => {
             Recipe #{index + 1}
           </div>
         </div>
-        
+
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 10 }}>
           <h3 style={titleStyle}>
@@ -136,13 +136,13 @@ const RecipeCard = ({ item, index }) => {
           <p style={contentStyle}>
             {item.content}
           </p>
-          
+
           {/* Action Button */}
           <button style={buttonStyle}>
             View Recipe
           </button>
         </div>
-        
+
         {/* Decorative Elements */}
         <div style={{
           position: 'absolute',
@@ -246,7 +246,7 @@ const HeroSection = () => {
     <div style={heroStyle}>
       {/* Animated Background */}
       <div style={backgroundStyle}></div>
-      
+
       {/* Floating Particles */}
       {[...Array(20)].map((_, i) => (
         <div
@@ -264,7 +264,7 @@ const HeroSection = () => {
           }}
         ></div>
       ))}
-      
+
       <div style={contentStyle}>
         <div style={{ marginBottom: '48px' }}>
           <h1 style={titleStyle}>
@@ -274,7 +274,7 @@ const HeroSection = () => {
             Open source your recipe by sharing it with others. They will suggest the changes needed to make it perfect.
           </p>
         </div>
-        
+
         {/* Hero Image with Glass Effect */}
         <div style={imageContainerStyle}>
           <div style={imageBackgroundStyle}></div>
@@ -412,7 +412,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <HeroSection />
-      
+
       {/* Recipes Section */}
       <section style={sectionStyle}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -423,7 +423,7 @@ export default function Home() {
             </h2>
             <div style={dividerStyle}></div>
           </div>
-          
+
           {/* Recipe Cards Grid */}
           <div style={gridStyle}>
             {items.map((item, index) => (
@@ -431,7 +431,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        
+
         {/* Decorative Background Elements */}
         <div style={decorativeStyle1}></div>
         <div style={decorativeStyle2}></div>

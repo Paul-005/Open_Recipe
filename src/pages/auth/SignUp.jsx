@@ -1,25 +1,20 @@
 import axios from "axios";
 import { useState } from "react";
-
-import "../../styles/auth/Login.css";
-
 import { useHistory } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 export default function SignUp() {
-  const [email, setemail] = useState("");
-  const [password, setpassword] = useState("");
-  const [name, setname] = useState("");
-  const [error, seterror] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [authState, setauthState] = useState(false);
-
   const history = useHistory();
 
   const submitForm = (e) => {
     e.preventDefault();
     if (name.length === 0 || email.length === 0 || password.length === 0) {
-      seterror("Please Fill The required Forms");
+      setError("Please fill in all required fields");
       setLoading(false);
     } else {
       setLoading(true);
@@ -33,7 +28,7 @@ export default function SignUp() {
           console.log(response.data);
           if (response.data.err) {
             setLoading(false);
-            seterror(response.data.err);
+            setError(response.data.err);
           }
           if (response.data.token !== undefined) {
             localStorage.setItem("jwt", response.data.token);
@@ -47,89 +42,272 @@ export default function SignUp() {
               })
             );
             window.location.href = "/";
-            seterror("");
+            setError("");
             setLoading(false);
           }
         })
         .catch(function (error) {
           console.log(error);
-          seterror(error.toString());
+          setError(error.toString());
+          setLoading(false);
         });
     }
   };
 
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fdba74 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2rem 1rem'
+  };
+
+  const formContainerStyle = {
+    background: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '2rem',
+    padding: '3rem',
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    width: '100%',
+    maxWidth: '450px'
+  };
+
+  const logoStyle = {
+    width: '80px',
+    height: '80px',
+    borderRadius: '1.5rem',
+    marginBottom: '2rem',
+    boxShadow: '0 10px 25px rgba(242, 117, 10, 0.3)'
+  };
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: '0.5rem',
+    textAlign: 'center'
+  };
+
+  const subtitleStyle = {
+    fontSize: '2rem',
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: '2rem',
+    textAlign: 'center'
+  };
+
+  const inputGroupStyle = {
+    marginBottom: '1.5rem'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '0.5rem'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '1rem 1.25rem',
+    border: '2px solid #e5e7eb',
+    borderRadius: '1rem',
+    fontSize: '1rem',
+    transition: 'all 0.3s ease',
+    background: '#fafafa'
+  };
+
+  const inputFocusStyle = {
+    outline: 'none',
+    borderColor: '#f2750a',
+    background: 'white',
+    boxShadow: '0 0 0 3px rgba(242, 117, 10, 0.1)'
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '1rem',
+    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '1rem',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 10px 25px rgba(242, 117, 10, 0.3)',
+    marginBottom: '1.5rem'
+  };
+
+  const buttonHoverStyle = {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 15px 35px rgba(242, 117, 10, 0.4)'
+  };
+
+  const linkStyle = {
+    color: '#f2750a',
+    textDecoration: 'none',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'color 0.3s ease'
+  };
+
+  const alertStyle = {
+    background: '#fef2f2',
+    color: '#991b1b',
+    padding: '1rem',
+    borderRadius: '0.75rem',
+    marginBottom: '1.5rem',
+    border: '1px solid #fecaca',
+    fontSize: '0.875rem'
+  };
+
+  const spinnerStyle = {
+    width: '24px',
+    height: '24px',
+    border: '3px solid rgba(255, 255, 255, 0.3)',
+    borderTop: '3px solid white',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    marginRight: '0.5rem'
+  };
+
   return (
-    <div className="text-center">
-      <h1 className="title fw-bold ">Open Recipe</h1>
-      <main className="form-signin ">
-        <form>
-          <img
-            className="mb-4"
-            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
-            alt="cook"
-            width="85"
-            height="85"
-          />
-          <h1 className="h2 mb-3 fw-bold ">Sign Up</h1>
+    <>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+      
+      <div style={containerStyle}>
+        <div style={formContainerStyle}>
+          <div style={{ textAlign: 'center' }}>
+            <img
+              src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
+              alt="Open Recipe"
+              style={logoStyle}
+            />
+            <h1 style={titleStyle}>Open Recipe</h1>
+            <h2 style={subtitleStyle}>Join Our Community</h2>
+          </div>
+
           {error && (
-            <div class="alert alert-danger" role="alert">
+            <div style={alertStyle}>
+              <i className="bi bi-exclamation-triangle me-2"></i>
               {error}
             </div>
           )}
-          {loading && (
-            <div class="spinner-border text-primary m-3" role="status">
-              <span className="visually-hidden">Loading...</span>
+
+          <form onSubmit={submitForm}>
+            <div style={inputGroupStyle}>
+              <label style={labelStyle}>Full Name</label>
+              <input
+                type="text"
+                style={inputStyle}
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onFocus={(e) => {
+                  Object.assign(e.target.style, inputFocusStyle);
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e5e7eb';
+                  e.target.style.background = '#fafafa';
+                  e.target.style.boxShadow = 'none';
+                }}
+                required
+              />
             </div>
-          )}
-          <div className="form-floating">
-            <input
-              type="name"
-              className="form-control"
-              id="floatingPassword"
-              required
-              placeholder="Name"
-              onChange={(e) => setname(e.target.value)}
-            />
-            <label htmlFor="floatingPassword">Name</label>
-          </div>
-          <div className="form-floating">
-            <input
-              type="email"
-              className="form-control"
-              id="floatingInput"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setemail(e.target.value)}
-            />
-            <label htmlFor="floatingInput">Email address</label>
-          </div>
-          <div className="form-floating">
-            <input
-              type="password"
-              className="form-control"
-              id="floatingPassword"
-              placeholder="Password"
-              onChange={(e) => setpassword(e.target.value)}
-            />
-            <label htmlFor="floatingPassword">Password</label>
-          </div>
-          <button
-            className="w-100 btn btn-lg btn-primary"
-            onClick={(e) => submitForm(e)}
-          >
-            Sign Up
-          </button>
 
-          <p
-            onClick={() => history.push("/login")}
-            className="mt-5 mb-3 text-muted"
-          >
-            Already having acount? Login
-          </p>
+            <div style={inputGroupStyle}>
+              <label style={labelStyle}>Email Address</label>
+              <input
+                type="email"
+                style={inputStyle}
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={(e) => {
+                  Object.assign(e.target.style, inputFocusStyle);
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e5e7eb';
+                  e.target.style.background = '#fafafa';
+                  e.target.style.boxShadow = 'none';
+                }}
+                required
+              />
+            </div>
 
-          <p className="mt-5 mb-3 text-muted">&copy; 2022</p>
-        </form>
-      </main>
-    </div>
+            <div style={inputGroupStyle}>
+              <label style={labelStyle}>Password</label>
+              <input
+                type="password"
+                style={inputStyle}
+                placeholder="Create a strong password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={(e) => {
+                  Object.assign(e.target.style, inputFocusStyle);
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e5e7eb';
+                  e.target.style.background = '#fafafa';
+                  e.target.style.boxShadow = 'none';
+                }}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              style={buttonStyle}
+              disabled={loading}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  Object.assign(e.target.style, buttonHoverStyle);
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
+                }
+              }}
+            >
+              {loading && <div style={spinnerStyle}></div>}
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ color: '#6b7280' }}>Already have an account? </span>
+              <span
+                style={linkStyle}
+                onClick={() => history.push("/login")}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#ea580c';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#f2750a';
+                }}
+              >
+                Sign In
+              </span>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+              <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+                &copy; 2024 Open Recipe. All rights reserved.
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
