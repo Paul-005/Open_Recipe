@@ -10,6 +10,9 @@ export default function OneRecipe() {
   const [error, setError] = useState("");
   const { id } = useParams();
   const history = useHistory();
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [commentError, setCommentError] = useState("");
+  const [commentSuccess, setCommentSuccess] = useState("");
 
   useEffect(() => {
     verifyUser();
@@ -330,6 +333,195 @@ export default function OneRecipe() {
                 </button>
               </div>
               <div style={{ paddingBottom: '3rem' }}></div>
+
+              {/* Comments Section */}
+              <div style={{
+                background: 'linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%)',
+                borderRadius: '2rem',
+                boxShadow: '0 10px 32px rgba(242, 117, 10, 0.08)',
+                border: '1px solid #fed7aa',
+                padding: '2.5rem 2rem',
+                margin: '2rem 0 3rem 0',
+                maxWidth: '700px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}>
+                <h2 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  fontSize: '2rem',
+                  fontWeight: 700,
+                  color: '#ea580c',
+                  marginBottom: '1.5rem',
+                }}>
+                  <i className="bi bi-chat-dots" style={{ fontSize: '2rem', color: '#f2750a' }}></i>
+                  Comments
+                </h2>
+                {recipeData.comments && recipeData.comments.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {recipeData.comments.map((c) => (
+                      <div key={c._id} style={{
+                        background: 'white',
+                        borderRadius: '1.2rem',
+                        boxShadow: '0 4px 16px rgba(242, 117, 10, 0.07)',
+                        border: '1px solid #fed7aa',
+                        padding: '1.25rem 1.5rem',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '1rem',
+                        position: 'relative',
+                      }}>
+                        <div style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #f2750a, #fed7aa)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontWeight: 700,
+                          fontSize: '1.3rem',
+                          flexShrink: 0,
+                          boxShadow: '0 2px 8px rgba(242, 117, 10, 0.10)'
+                        }}>
+                          <i className="bi bi-person-circle"></i>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{
+                            fontSize: '1.08rem',
+                            color: '#0f172a',
+                            fontWeight: 500,
+                            marginBottom: '0.3rem',
+                          }}>{c.comment}</div>
+                          <div style={{
+                            fontSize: '0.95rem',
+                            color: '#ea580c',
+                            opacity: 0.7,
+                          }}>{new Date(c.createdAt).toLocaleString()}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    color: '#ea580c',
+                    fontWeight: 500,
+                    fontSize: '1.1rem',
+                    padding: '1.5rem 0 0.5rem 0',
+                  }}>
+                    <i className="bi bi-emoji-smile" style={{ fontSize: '1.5rem', color: '#f2750a', marginRight: '0.5rem' }}></i>
+                    No comments yet. Be the first to share your thoughts!
+                  </div>
+                )}
+
+                {/* Add Comment Form */}
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!comment.trim()) return;
+                    setCommentLoading(true);
+                    setCommentError("");
+                    setCommentSuccess("");
+                    try {
+                      await axios.post(
+                        `${React_Backend}/recipes/comment/${id}`,
+                        { comment },
+                        { headers: { token: localStorage.getItem("jwt") } }
+                      );
+                      setCommentSuccess("Comment added!");
+                      setComment("");
+                      getOneRecipe(); // Refresh comments
+                    } catch (err) {
+                      setCommentError(err.response?.data?.message || err.message || "Failed to add comment");
+                    } finally {
+                      setCommentLoading(false);
+                    }
+                  }}
+                  style={{
+                    marginTop: '2.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                    alignItems: 'stretch',
+                  }}
+                >
+                  <label htmlFor="comment-input" style={{
+                    fontWeight: 600,
+                    color: '#ea580c',
+                    marginBottom: '0.5rem',
+                    fontSize: '1.1rem',
+                  }}>
+                    <i className="bi bi-pencil-square" style={{ marginRight: '0.5rem' }}></i>
+                    Add a Comment
+                  </label>
+                  <textarea
+                    id="comment-input"
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    rows={3}
+                    maxLength={300}
+                    placeholder="Share your thoughts..."
+                    style={{
+                      borderRadius: '1rem',
+                      border: '1.5px solid #fed7aa',
+                      padding: '1rem',
+                      fontSize: '1.08rem',
+                      resize: 'vertical',
+                      outline: 'none',
+                      boxShadow: '0 2px 8px rgba(242, 117, 10, 0.05)',
+                      background: '#fff7ed',
+                      color: '#ea580c',
+                      fontWeight: 500,
+                      transition: 'border 0.2s',
+                    }}
+                    disabled={commentLoading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={commentLoading || !comment.trim()}
+                    style={{
+                      background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.9rem 2.2rem',
+                      borderRadius: '1rem',
+                      fontSize: '1.08rem',
+                      fontWeight: 700,
+                      cursor: commentLoading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 6px 18px rgba(242, 117, 10, 0.13)',
+                      transition: 'all 0.2s',
+                      alignSelf: 'flex-end',
+                      opacity: commentLoading || !comment.trim() ? 0.7 : 1,
+                      marginTop: '0.2rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    {commentLoading ? (
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    ) : (
+                      <i className="bi bi-send"></i>
+                    )}
+                    {commentLoading ? 'Adding...' : 'Add Comment'}
+                  </button>
+                  {commentError && (
+                    <div style={{ color: '#dc2626', fontWeight: 500, marginTop: '0.5rem' }}>
+                      <i className="bi bi-exclamation-triangle" style={{ marginRight: '0.4rem' }}></i>
+                      {commentError}
+                    </div>
+                  )}
+                  {commentSuccess && (
+                    <div style={{ color: '#10b981', fontWeight: 500, marginTop: '0.5rem' }}>
+                      <i className="bi bi-check-circle" style={{ marginRight: '0.4rem' }}></i>
+                      {commentSuccess}
+                    </div>
+                  )}
+                </form>
+              </div>
             </>
           )}
         </div>
