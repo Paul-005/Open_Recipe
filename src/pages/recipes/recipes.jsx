@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 // Recipe Card Component
 const RecipeCard = ({ data }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const cardStyle = {
     background: 'white',
@@ -107,7 +107,7 @@ const RecipeCard = ({ data }) => {
 
         <button
           style={buttonStyle}
-          onClick={() => history.push(`/recipe/${data._id}`)}
+          onClick={() => navigate(`/recipe/${data._id}`)}
         >
           <i className="bi bi-eye"></i>
           View Recipe
@@ -118,7 +118,7 @@ const RecipeCard = ({ data }) => {
 };
 
 export default function Recipes() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [RecipesData, setRecipesData] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -292,7 +292,7 @@ export default function Recipes() {
                   Be the first to share a delicious recipe with our community!
                 </p>
                 <button
-                  onClick={() => history.push("/content-editing")}
+                  onClick={() => navigate("/content-editing")}
                   style={{
                     background: 'linear-gradient(135deg, #f2750a, #ea580c)',
                     color: 'white',

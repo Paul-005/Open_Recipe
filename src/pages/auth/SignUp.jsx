@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 export default function SignUp() {
@@ -9,7 +9,7 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -41,6 +41,7 @@ export default function SignUp() {
                 name: response.data.name
               })
             );
+            localStorage.setItem("userId", response.data._id);
             window.location.href = "/";
             setError("");
             setLoading(false);
@@ -183,7 +184,7 @@ export default function SignUp() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         <div style={formContainerStyle}>
           <div style={{ textAlign: 'center' }}>
@@ -288,7 +289,7 @@ export default function SignUp() {
               <span style={{ color: '#6b7280' }}>Already have an account? </span>
               <span
                 style={linkStyle}
-                onClick={() => history.push("/login")}
+                onClick={() => navigate("/login")}
                 onMouseEnter={(e) => {
                   e.target.style.color = '#ea580c';
                 }}

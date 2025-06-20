@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 //file imports
 import LoginPage from "./pages/auth/Login";
@@ -15,15 +15,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/login" component={LoginPage} />
-        <Route path="/signup" component={SignUp} />
-        <Route path="/content-editing" component={ContentEditingPage} />
-        <Route path="/recipes" component={Recipes} />
-        <Route path="/recipe/:id" component={OneRecipe} />
-        <Route path="/profile" component={ProfilePage} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/content-editing" element={<ContentEditingPage />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/recipe/:id" element={<OneRecipe />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Routes>
     </BrowserRouter>
   );
 }

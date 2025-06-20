@@ -1,8 +1,8 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../home/homepage.css";
 
 export default function CardImg({ items }) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <div className="col-md-6 col-lg-4  mb-5 ">

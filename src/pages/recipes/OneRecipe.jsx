@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 export default function OneRecipe() {
@@ -9,7 +9,7 @@ export default function OneRecipe() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [commentLoading, setCommentLoading] = useState(false);
   const [commentError, setCommentError] = useState("");
   const [commentSuccess, setCommentSuccess] = useState("");
@@ -58,7 +58,7 @@ export default function OneRecipe() {
   };
 
   function verifyUser() {
-    if (!localStorage.getItem("jwt")) history.push("/login");
+    if (!localStorage.getItem("jwt")) navigate("/login");
   }
 
   const containerStyle = {
@@ -194,7 +194,7 @@ export default function OneRecipe() {
           <div className="container">
             <button
               style={backButtonStyle}
-              onClick={() => history.goBack()}
+              onClick={() => navigate(-1)}
               onMouseEnter={(e) => {
                 e.target.style.background = 'rgba(255, 255, 255, 0.3)';
               }}
@@ -274,65 +274,6 @@ export default function OneRecipe() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                <button
-                  onClick={() => history.push("/recipes")}
-                  style={{
-                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '1rem 2rem',
-                    borderRadius: '1rem',
-                    fontSize: '1.1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 10px 25px rgba(242, 117, 10, 0.3)',
-                    marginRight: '1rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 15px 35px rgba(242, 117, 10, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
-                  }}
-                >
-                  <i className="bi bi-arrow-left me-2"></i>
-                  Browse More Recipes
-                </button>
-
-                <button
-                  onClick={() => history.push("/content-editing")}
-                  style={{
-                    background: 'white',
-                    color: '#f2750a',
-                    border: '2px solid #f2750a',
-                    padding: '1rem 2rem',
-                    borderRadius: '1rem',
-                    fontSize: '1.1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#f2750a';
-                    e.target.style.color = 'white';
-                    e.target.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'white';
-                    e.target.style.color = '#f2750a';
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <i className="bi bi-plus-circle me-2"></i>
-                  Share Your Recipe
-                </button>
-              </div>
-              <div style={{ paddingBottom: '3rem' }}></div>
 
               {/* Comments Section */}
               <div style={{
@@ -401,6 +342,34 @@ export default function OneRecipe() {
                             opacity: 0.7,
                           }}>{new Date(c.createdAt).toLocaleString()}</div>
                         </div>
+                        {localStorage.getItem("userId") === c.user_id && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await axios.delete(`${React_Backend}/recipes/comment/${c._id}`, {
+                                  headers: { token: localStorage.getItem("jwt") }
+                                });
+                                getOneRecipe();
+                              } catch (err) {
+                                alert("Failed to delete comment");
+                              }
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '1rem',
+                              right: '1rem',
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#ef4444',
+                              fontSize: '1.2rem',
+                              cursor: 'pointer',
+                              padding: 0
+                            }}
+                            title="Delete comment"
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -522,6 +491,65 @@ export default function OneRecipe() {
                   )}
                 </form>
               </div>
+              {/* Action Buttons */}
+              <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                <button
+                  onClick={() => navigate("/recipes")}
+                  style={{
+                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '1rem 2rem',
+                    borderRadius: '1rem',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 10px 25px rgba(242, 117, 10, 0.3)',
+                    marginRight: '1rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 15px 35px rgba(242, 117, 10, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
+                  }}
+                >
+                  <i className="bi bi-arrow-left me-2"></i>
+                  Browse More Recipes
+                </button>
+
+                <button
+                  onClick={() => navigate("/content-editing")}
+                  style={{
+                    background: 'white',
+                    color: '#f2750a',
+                    border: '2px solid #f2750a',
+                    padding: '1rem 2rem',
+                    borderRadius: '1rem',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#f2750a';
+                    e.target.style.color = 'white';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'white';
+                    e.target.style.color = '#f2750a';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <i className="bi bi-plus-circle me-2"></i>
+                  Share Your Recipe
+                </button>
+              </div>
+              <div style={{ paddingBottom: '3rem' }}></div>
             </>
           )}
         </div>

@@ -203,8 +203,6 @@ const HeroSection = () => {
     maxWidth: '420px',
     width: '100%',
     borderRadius: '32px',
-    boxShadow: '0 40px 80px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-    transform: 'rotate(-1deg)',
     transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
     filter: 'brightness(1.05) saturate(1.1)'
   };
@@ -272,15 +270,13 @@ const HeroSection = () => {
         />
       ))}
       <div style={contentWrapperStyle}>
-        <div style={imageContainerStyle}>
-          <img
-            src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
-            style={imageStyle}
-            alt="Open Recipe"
-            onMouseEnter={(e) => e.target.style.transform = 'rotate(0deg) scale(1.02)'}
-            onMouseLeave={(e) => e.target.style.transform = 'rotate(-1deg) scale(1)'}
-          />
-        </div>
+        <img
+          src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
+          style={imageStyle}
+          alt="Open Recipe"
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        />
         <div style={textContainerStyle}>
           <h1 style={titleStyle}>Open Recipe</h1>
           <p style={subtitleStyle}>

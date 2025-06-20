@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 export default function LoginPage() {
@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -29,6 +29,7 @@ export default function LoginPage() {
           localStorage.setItem("username", response.data.user.email);
           localStorage.setItem("name", response.data.user.name);
           localStorage.setItem("user", JSON.stringify(response.data.user));
+          localStorage.setItem("userId", response.data.user._id);
           window.location.href = "/";
           setError("");
           setLoading(false);
@@ -170,7 +171,7 @@ export default function LoginPage() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         <div style={formContainerStyle}>
           <div style={{ textAlign: 'center' }}>
@@ -272,7 +273,7 @@ export default function LoginPage() {
               <span style={{ color: '#6b7280' }}>Don't have an account? </span>
               <span
                 style={linkStyle}
-                onClick={() => history.push("/signup")}
+                onClick={() => navigate("/signup")}
                 onMouseEnter={(e) => {
                   e.target.style.color = '#ea580c';
                 }}

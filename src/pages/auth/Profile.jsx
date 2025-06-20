@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { React_Backend } from "../backend_url";
 
@@ -8,7 +8,7 @@ export default function ProfilePage() {
   const [usersRecipe, setUsersRecipe] = useState([]);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const getUserInfo = () => {
     const json = localStorage.getItem("user");
@@ -46,7 +46,7 @@ export default function ProfilePage() {
   };
 
   function verifyUser() {
-    if (!localStorage.getItem("jwt")) history.push("/login");
+    if (!localStorage.getItem("jwt")) navigate("/login");
   }
 
   useEffect(() => {
@@ -294,7 +294,7 @@ export default function ProfilePage() {
                 <h3 style={{ color: '#475569', marginBottom: '0.5rem' }}>No recipes yet</h3>
                 <p>Start sharing your culinary creations with the community!</p>
                 <button
-                  onClick={() => history.push("/content-editing")}
+                  onClick={() => navigate("/content-editing")}
                   style={{
                     background: 'linear-gradient(135deg, #f2750a, #ea580c)',
                     color: 'white',
@@ -404,7 +404,7 @@ export default function ProfilePage() {
                   >
                     <div
                       style={recipeNameStyle}
-                      onClick={() => history.push(`/recipe/${data._id}`)}
+                      onClick={() => navigate(`/recipe/${data._id}`)}
                       onMouseEnter={(e) => {
                         e.target.style.color = '#f2750a';
                       }}

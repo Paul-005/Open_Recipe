@@ -1,12 +1,12 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Recipecard({ data }) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <div class="col">
       <div class="card shadow">
-      <img src={data.thumbnail} class="card-img-top"  alt=""/>
+        <img src={data.thumbnail} class="card-img-top" alt="" />
 
         <div class="card-body">
           <div className="card-title text-center fw-bold h2">
@@ -17,7 +17,7 @@ export default function Recipecard({ data }) {
             <button
               type="button"
               class="btn btn-sm btn-outline-secondary"
-              onClick={() => history.push(`/recipe/${data._id}`)}
+              onClick={() => navigate(`/recipe/${data._id}`)}
             >
               View
             </button>

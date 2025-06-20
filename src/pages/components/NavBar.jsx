@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [authState, setAuthState] = useState(false);
   const [name, setName] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (localStorage.getItem("jwt") !== null) {
@@ -115,7 +115,7 @@ export default function Navbar() {
       <div className="container-fluid px-4">
         <div className="d-flex justify-content-between align-items-center py-3">
           {/* Brand */}
-          <div style={brandStyle} onClick={() => history.push("/")}>
+          <div style={brandStyle} onClick={() => navigate("/")}>
             <img
               src="https://i.ibb.co/fv9NK8R/BQJl-download.png"
               alt="Open Recipe"
@@ -128,7 +128,7 @@ export default function Navbar() {
           <div className="d-none d-lg-flex align-items-center gap-2">
             <div
               style={navLinkStyle}
-              onClick={() => history.push("/")}
+              onClick={() => navigate("/")}
               onMouseEnter={(e) => {
                 e.target.style.color = navLinkHoverStyle.color;
                 e.target.style.background = navLinkHoverStyle.background;
@@ -143,7 +143,7 @@ export default function Navbar() {
             </div>
             <div
               style={navLinkStyle}
-              onClick={() => history.push("/recipes")}
+              onClick={() => navigate("/recipes")}
               onMouseEnter={(e) => {
                 e.target.style.color = navLinkHoverStyle.color;
                 e.target.style.background = navLinkHoverStyle.background;
@@ -159,7 +159,7 @@ export default function Navbar() {
             {authState && (
               <div
                 style={navLinkStyle}
-                onClick={() => history.push("/content-editing")}
+                onClick={() => navigate("/content-editing")}
                 onMouseEnter={(e) => {
                   e.target.style.color = navLinkHoverStyle.color;
                   e.target.style.background = navLinkHoverStyle.background;
@@ -181,7 +181,7 @@ export default function Navbar() {
               <div className="d-flex gap-2">
                 <button
                   style={secondaryButtonStyle}
-                  onClick={() => history.push("/login")}
+                  onClick={() => navigate("/login")}
                   onMouseEnter={(e) => {
                     e.target.style.background = '#f1f5f9';
                     e.target.style.borderColor = '#cbd5e1';
@@ -196,7 +196,7 @@ export default function Navbar() {
                 </button>
                 <button
                   style={primaryButtonStyle}
-                  onClick={() => history.push("/signup")}
+                  onClick={() => navigate("/signup")}
                   onMouseEnter={(e) => {
                     e.target.style.background = 'linear-gradient(135deg, #e35d05, #bc4508)';
                     e.target.style.transform = 'translateY(-1px)';
@@ -213,7 +213,7 @@ export default function Navbar() {
             ) : (
               <div
                 style={profileStyle}
-                onClick={() => history.push("/profile")}
+                onClick={() => navigate("/profile")}
                 onMouseEnter={(e) => {
                   e.target.style.background = 'rgba(242, 117, 10, 0.2)';
                 }}
@@ -265,7 +265,7 @@ export default function Navbar() {
             <div
               style={navLinkStyle}
               onClick={() => {
-                history.push("/");
+                navigate("/");
                 setIsMenuOpen(false);
               }}
             >
@@ -275,7 +275,7 @@ export default function Navbar() {
             <div
               style={navLinkStyle}
               onClick={() => {
-                history.push("/recipes");
+                navigate("/recipes");
                 setIsMenuOpen(false);
               }}
             >
@@ -286,7 +286,7 @@ export default function Navbar() {
               <div
                 style={navLinkStyle}
                 onClick={() => {
-                  history.push("/content-editing");
+                  navigate("/content-editing");
                   setIsMenuOpen(false);
                 }}
               >
@@ -294,15 +294,15 @@ export default function Navbar() {
                 Post Recipe
               </div>
             )}
-            
+
             <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
-            
+
             {!authState ? (
               <div className="d-flex flex-column gap-2">
                 <button
                   style={secondaryButtonStyle}
                   onClick={() => {
-                    history.push("/login");
+                    navigate("/login");
                     setIsMenuOpen(false);
                   }}
                 >
@@ -312,7 +312,7 @@ export default function Navbar() {
                 <button
                   style={primaryButtonStyle}
                   onClick={() => {
-                    history.push("/signup");
+                    navigate("/signup");
                     setIsMenuOpen(false);
                   }}
                 >
@@ -324,7 +324,7 @@ export default function Navbar() {
               <div
                 style={profileStyle}
                 onClick={() => {
-                  history.push("/profile");
+                  navigate("/profile");
                   setIsMenuOpen(false);
                 }}
               >

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { React_Backend } from "../backend_url";
 
 export default function ContentEditingPage() {
@@ -11,7 +11,7 @@ export default function ContentEditingPage() {
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Cloudinary credentials
   const CLOUDINARY_CLOUD_NAME = 'dqboa6lkh';
@@ -23,7 +23,7 @@ export default function ContentEditingPage() {
 
   function verifyUser() {
     if (!localStorage.getItem("jwt")) {
-      history.push("/login");
+      navigate("/login");
     }
   }
 
@@ -97,7 +97,7 @@ export default function ContentEditingPage() {
         }
       );
 
-      history.push("/recipes");
+      navigate("/recipes");
 
     } catch (e) {
       console.error("Error publishing content:", e);
@@ -287,7 +287,7 @@ export default function ContentEditingPage() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      
+
       <div style={containerStyle}>
         <div className="container">
           <div style={formContainerStyle}>
