@@ -8,6 +8,8 @@ export default function ProfilePage() {
   const [usersRecipe, setUsersRecipe] = useState([]);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [recipeToDelete, setRecipeToDelete] = useState(null);
   const navigate = useNavigate();
 
   const getUserInfo = () => {
@@ -21,11 +23,12 @@ export default function ProfilePage() {
   const getUsersRecipe = async () => {
     setPending(true);
     try {
-      const recipes = await axios.get(`${React_Backend}/get-users-recipe`, {
+      const recipes = await axios.get(`${React_Backend}/recipes/get-users-recipe`, {
         headers: { token: localStorage.getItem("jwt") },
       });
-      if (recipes.data && recipes.data.recipe) {
-        setUsersRecipe(recipes.data.recipe);
+
+      if (recipes.data) {
+        setUsersRecipe(recipes.data);
       } else {
         setUsersRecipe([]);
       }
@@ -54,6 +57,24 @@ export default function ProfilePage() {
     getUserInfo();
     getUsersRecipe();
   }, []);
+
+  const handleDeleteClick = (recipe) => {
+    setRecipeToDelete(recipe);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (recipeToDelete) {
+      deleteRecipe(recipeToDelete.recipe_id);
+      setShowDeleteModal(false);
+      setRecipeToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setRecipeToDelete(null);
+  };
 
   const deleteRecipe = (id) => {
     setPending(true);
@@ -188,12 +209,97 @@ export default function ProfilePage() {
     justifyContent: 'center'
   };
 
-  const modalStyle = {
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    backdropFilter: 'blur(4px)'
+  };
+
+  const modalContentStyle = {
     background: 'rgba(255, 255, 255, 0.98)',
     backdropFilter: 'blur(20px)',
     borderRadius: '1.5rem',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)'
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+    maxWidth: '500px',
+    width: '90%',
+    maxHeight: '90vh',
+    overflow: 'auto'
+  };
+
+  const modalHeaderStyle = {
+    padding: '2rem 2rem 1rem 2rem',
+    borderBottom: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  };
+
+  const modalTitleStyle = {
+    color: '#ef4444', 
+    fontWeight: '700', 
+    fontSize: '1.25rem',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  };
+
+  const closeButtonStyle = {
+    background: 'none',
+    border: 'none',
+    fontSize: '1.5rem',
+    cursor: 'pointer',
+    color: '#64748b',
+    padding: '0.25rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const modalBodyStyle = {
+    padding: '0 2rem'
+  };
+
+  const modalFooterStyle = {
+    padding: '1rem 2rem 2rem 2rem',
+    borderTop: 'none',
+    display: 'flex',
+    gap: '0.5rem',
+    justifyContent: 'flex-end'
+  };
+
+  const cancelButtonStyle = {
+    background: '#f8fafc',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease'
+  };
+
+  const confirmDeleteButtonStyle = {
+    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    color: 'white',
+    border: 'none',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
   };
 
   const alertStyle = {
@@ -317,81 +423,7 @@ export default function ProfilePage() {
             {/* Recipe List */}
             {usersRecipe.length > 0 &&
               usersRecipe.map((data) => (
-                <div key={data.recipe_id}>
-                  {/* Delete Confirmation Modal */}
-                  <div
-                    className="modal fade"
-                    id={`deleteRecipeModal-${data.recipe_id}`}
-                    tabIndex="-1"
-                    aria-labelledby={`deleteRecipeModalLabel-${data.recipe_id}`}
-                    aria-hidden="true"
-                  >
-                    <div className="modal-dialog modal-dialog-centered">
-                      <div className="modal-content" style={modalStyle}>
-                        <div className="modal-header" style={{ border: 'none', padding: '2rem 2rem 1rem 2rem' }}>
-                          <h5
-                            className="modal-title"
-                            id={`deleteRecipeModalLabel-${data.recipe_id}`}
-                            style={{ color: '#ef4444', fontWeight: '700', fontSize: '1.25rem' }}
-                          >
-                            <i className="bi bi-exclamation-triangle me-2"></i>
-                            Delete Recipe
-                          </h5>
-                          <button
-                            type="button"
-                            className="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                            style={{ fontSize: '1.5rem' }}
-                          ></button>
-                        </div>
-                        <div className="modal-body" style={{ padding: '0 2rem' }}>
-                          <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '1rem' }}>
-                            Are you sure you want to delete <strong>"{data.recipe}"</strong>?
-                          </p>
-                          <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
-                            This action cannot be undone.
-                          </p>
-                        </div>
-                        <div className="modal-footer" style={{ border: 'none', padding: '1rem 2rem 2rem 2rem' }}>
-                          <button
-                            type="button"
-                            className="btn"
-                            data-bs-dismiss="modal"
-                            style={{
-                              background: '#f8fafc',
-                              color: '#475569',
-                              border: '1px solid #e2e8f0',
-                              padding: '0.75rem 1.5rem',
-                              borderRadius: '0.75rem',
-                              fontWeight: '500'
-                            }}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            className="btn"
-                            data-bs-dismiss="modal"
-                            onClick={() => deleteRecipe(data.recipe_id)}
-                            style={{
-                              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                              color: 'white',
-                              border: 'none',
-                              padding: '0.75rem 1.5rem',
-                              borderRadius: '0.75rem',
-                              fontWeight: '600',
-                              marginLeft: '0.5rem'
-                            }}
-                          >
-                            <i className="bi bi-trash me-2"></i>
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+                <div key={data._id}>
                   {/* Recipe Item */}
                   <div
                     style={recipeItemStyle}
@@ -413,12 +445,11 @@ export default function ProfilePage() {
                       }}
                     >
                       <i className="bi bi-journal-text me-2"></i>
-                      {data.recipe}
+                      {data.recipeName}
                     </div>
                     <button
                       style={deleteButtonStyle}
-                      data-bs-toggle="modal"
-                      data-bs-target={`#deleteRecipeModal-${data.recipe_id}`}
+                      onClick={() => handleDeleteClick(data)}
                       onMouseEnter={(e) => {
                         e.target.style.background = '#fee2e2';
                         e.target.style.borderColor = '#fca5a5';
@@ -435,6 +466,58 @@ export default function ProfilePage() {
               ))}
           </div>
         </div>
+
+        {/* Custom Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div style={modalOverlayStyle} onClick={cancelDelete}>
+            <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+              <div style={modalHeaderStyle}>
+                <h5 style={modalTitleStyle}>
+                  <i className="bi bi-exclamation-triangle"></i>
+                  Delete Recipe
+                </h5>
+                <button style={closeButtonStyle} onClick={cancelDelete}>
+                  ×
+                </button>
+              </div>
+              <div style={modalBodyStyle}>
+                <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '1rem' }}>
+                  Are you sure you want to delete <strong>"{recipeToDelete?.recipeName}"</strong>?
+                </p>
+                <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div style={modalFooterStyle}>
+                <button
+                  style={cancelButtonStyle}
+                  onClick={cancelDelete}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#f1f5f9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#f8fafc';
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  style={confirmDeleteButtonStyle}
+                  onClick={confirmDelete}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                  }}
+                >
+                  <i className="bi bi-trash"></i>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
