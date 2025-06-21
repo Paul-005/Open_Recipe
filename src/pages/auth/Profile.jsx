@@ -65,7 +65,7 @@ export default function ProfilePage() {
 
   const confirmDelete = () => {
     if (recipeToDelete) {
-      deleteRecipe(recipeToDelete.recipe_id);
+      deleteRecipe(recipeToDelete._id);
       setShowDeleteModal(false);
       setRecipeToDelete(null);
     }
@@ -78,10 +78,9 @@ export default function ProfilePage() {
 
   const deleteRecipe = (id) => {
     setPending(true);
-    console.log(`Attempting to delete recipe with ID: ${id}`);
 
     axios
-      .delete(`${React_Backend}/recipes/${id}/`, {
+      .delete(`${React_Backend}/recipes/${id}`, {
         headers: {
           token: localStorage.getItem("jwt"),
         },
@@ -209,6 +208,22 @@ export default function ProfilePage() {
     justifyContent: 'center'
   };
 
+  const editButtonStyle = {
+    background: '#f0f9ff',
+    color: '#0284c7',
+    border: '1px solid #bae6fd',
+    borderRadius: '0.5rem',
+    padding: '0.5rem',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '0.5rem'
+  };
+
   const modalOverlayStyle = {
     position: 'fixed',
     top: 0,
@@ -244,8 +259,8 @@ export default function ProfilePage() {
   };
 
   const modalTitleStyle = {
-    color: '#ef4444', 
-    fontWeight: '700', 
+    color: '#ef4444',
+    fontWeight: '700',
     fontSize: '1.25rem',
     margin: 0,
     display: 'flex',
@@ -447,20 +462,39 @@ export default function ProfilePage() {
                       <i className="bi bi-journal-text me-2"></i>
                       {data.recipeName}
                     </div>
-                    <button
-                      style={deleteButtonStyle}
-                      onClick={() => handleDeleteClick(data)}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = '#fee2e2';
-                        e.target.style.borderColor = '#fca5a5';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = '#fef2f2';
-                        e.target.style.borderColor = '#fecaca';
-                      }}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
+                    <div style={{ display: 'flex' }}>
+                      <button
+                        style={editButtonStyle}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/edit-recipe/${data._id}`);
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = '#e0f2fe';
+                          e.target.style.borderColor = '#bae6fd';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = '#f0f9ff';
+                          e.target.style.borderColor = '#bae6fd';
+                        }}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button
+                        style={deleteButtonStyle}
+                        onClick={() => handleDeleteClick(data)}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = '#fee2e2';
+                          e.target.style.borderColor = '#fca5a5';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = '#fef2f2';
+                          e.target.style.borderColor = '#fecaca';
+                        }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

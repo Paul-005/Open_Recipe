@@ -87,6 +87,21 @@ export default function OneRecipe() {
     marginBottom: '2rem'
   };
 
+  const editButtonStyle = {
+    background: 'rgba(255, 255, 255, 0.2)',
+    color: 'white',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontSize: '1rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+    marginBottom: '2rem',
+    marginLeft: '1rem'
+  };
+
   const titleStyle = {
     fontSize: 'clamp(2rem, 4vw, 3.5rem)',
     fontWeight: '800',
@@ -192,19 +207,38 @@ export default function OneRecipe() {
         {/* Hero Section */}
         <section style={heroStyle}>
           <div className="container">
-            <button
-              style={backButtonStyle}
-              onClick={() => navigate(-1)}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-              }}
-            >
-              <i className="bi bi-arrow-left me-2"></i>
-              Back to Recipes
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+              <button
+                style={backButtonStyle}
+                onClick={() => navigate(-1)}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                }}
+              >
+                <i className="bi bi-arrow-left me-2"></i>
+                Back to Recipes
+              </button>
+
+              {/* Edit Button - Only show for recipe owner */}
+              {!loading && recipeData.email && recipeData.email === JSON.parse(localStorage.getItem("user"))?.email && (
+                <button
+                  style={editButtonStyle}
+                  onClick={() => navigate(`/edit-recipe/${id}`)}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  }}
+                >
+                  <i className="bi bi-pencil me-2"></i>
+                  Edit Recipe
+                </button>
+              )}
+            </div>
 
             {!loading && recipeData.recipeName && (
               <>

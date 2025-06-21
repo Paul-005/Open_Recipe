@@ -6,6 +6,7 @@ import Home from "./pages/home/HomePage";
 import SignUp from "./pages/auth/SignUp";
 import "./styles.css";
 import ContentEditingPage from "./pages/home/ContentPage";
+import EditRecipePage from "./pages/home/EditRecipePage";
 import Recipes from "./pages/recipes/recipes";
 import OneRecipe from "./pages/recipes/OneRecipe";
 import ProfilePage from "./pages/auth/Profile";
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/content-editing" element={<ContentEditingPage />} />
+        <Route path="/edit-recipe/:id" element={<EditRecipePage />} />
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/recipe/:id" element={<OneRecipe />} />
         <Route path="/profile" element={<ProfilePage />} />
