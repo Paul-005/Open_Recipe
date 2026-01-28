@@ -1,7 +1,6 @@
 const express = require("express");
 const verifyUser = require("../middlewares/jwtVerifier");
-const recipeControllers = require("../controllers/recipeControllers");
-
+const recipeControllers = require("../controllers/recipe.controller");
 const recipesRoute = express.Router();
 
 // Base route for recipes
@@ -13,5 +12,6 @@ recipesRoute.post("/comment/:id", verifyUser, recipeControllers.addComment);
 recipesRoute.delete("/comment/:id", verifyUser, recipeControllers.deleteComment);
 recipesRoute.get("/:id", verifyUser, recipeControllers.fetchRecipeById);
 recipesRoute.delete("/:id", verifyUser, recipeControllers.deleteRecipe);
+recipesRoute.post("/ask-ai", verifyUser, recipeControllers.askGemini);
 
 module.exports = recipesRoute;

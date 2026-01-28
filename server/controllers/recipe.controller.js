@@ -1,5 +1,6 @@
-const Comments = require("../modals/CommentsModal");
-const RecipeModal = require("../modals/RecipeModal");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Comments = require("../models/CommentsModal");
+const RecipeModal = require("../models/RecipeModal");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
@@ -75,6 +76,8 @@ exports.fetchRecipeById = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 
+
+    
 
 };
 
@@ -236,6 +239,56 @@ exports.fetchUserRecipes = async (req, res) => {
     } catch (error) {
         console.error("Profile error:", error);
         return res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+exports.askGemini = async (req, res) => {
+    try {
+        const { recipeId, question } = req.body;
+        
+        if (!recipeId || !question) {
+             return res.status(400).json({ error: "Recipe ID and question are required" });
+        }
+
+        const recipe = await RecipeModal.findById(recipeId);
+        if (!recipe) {
+            return res.status(404).json({ error: "Recipe not found" });
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ error: "Gemini API Key is not configured" });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const prompt = `
+        You are a helpful cooking assistant.
+        Here is the recipe:
+        Name: ${recipe.recipeName}
+        Ingredients: ${recipe.Incredients}
+        Content: ${recipe.RecipeContent}
+
+        User Question: ${question}
+
+        Answer the user's question based on the recipe above. 
+        If the user asks to adjust ingredients, provide the adjusted amounts. 
+        If they ask for spicy suggestions, suggest relevant spices. 
+        Keep the answer concise and helpful.
+        `;
+
+        // console.log("this is prompt", prompt);
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        res.status(200).json({ answer: text });
+
+    } catch (error) {
+        console.error("Gemini API error:", error);
+        res.status(500).json({ error: "Failed to get answer from AI" });
     }
 };
 

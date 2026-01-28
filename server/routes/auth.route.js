@@ -1,7 +1,6 @@
 const express = require("express");
 
-const loginUser = require("../controllers/authentication/loginUser");
-const regsiterUser = require("../controllers/authentication/registerUser");
+const { loginUser, regsiterUser } = require("../controllers/auth.controller");
 
 const authRoute = express.Router();
 

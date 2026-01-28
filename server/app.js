@@ -5,10 +5,9 @@ const helmet = require("helmet");
 require("dotenv").config();
 
 //file imports
-const authRoute = require("./routes/authRoute");
-const recipesRoute = require("./routes/recipesRoute");
-const connect_db = require("./start/db");
-
+const connect_db = require("./config/db");
+const authRoute = require("./routes/auth.route");
+const recipesRoute = require("./routes/recipe.route");
 const app = express();
 var port = process.env.PORT || 5000;
 
@@ -26,14 +25,19 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(authRoute);
-app.use("/recipes", recipesRoute);
+
+app.use("/api", authRoute);
+app.use("/api/recipes", recipesRoute);
+
+app.get("/api", (req, res) => {
+  res.status(200).json({ message: "Welcome to the Open Recipe API" });
+});
+
 
 // connect to mongodb
-connect_db();
+if (process.env.NODE_ENV !== "test") {
+  connect_db();
+  app.listen(port, () => console.log(`server listening on port http://localhost:${port}....`));
+}
 
-app.listen(port, () => console.log(`server listening on port http://localhost:${port}....`));
-
-app.get("/", (req, res) => {
-  res.send("https://open-recipe-paul.vercel.app");
-});
+module.exports = app;
