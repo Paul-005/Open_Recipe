@@ -14,10 +14,10 @@ exports.addNewRecipe = async (req, res) => {
             return res.status(401).json({ error: "Invalid token not found in token" });
         }
         const user_id = decoded.id;
-        const { recipeName, ingredients, RecipeContent, thumbnail } = req.body;
+        const { recipeName, ingredients, RecipeContent, thumbnail, cookingTime, servings } = req.body;
 
-        if (!recipeName || !RecipeContent || !thumbnail || !ingredients) {
-            return res.status(400).json({ error: "Recipe name and content are required" });
+        if (!recipeName || !RecipeContent || !ingredients || !cookingTime || servings == null) {
+            return res.status(400).json({ error: "All required fields must be provided" });
         }
 
         const RecipeData = new RecipeModal({
@@ -25,6 +25,8 @@ exports.addNewRecipe = async (req, res) => {
             ingredients,
             RecipeContent,
             thumbnail,
+            cookingTime,
+            servings,
             user_id
         });
 
@@ -54,7 +56,7 @@ exports.fetchRecipeById = async (req, res) => {
 
         // Use aggregation with $match and $lookup for optimal performance
         const result = await RecipeModal.aggregate([
-            { $match: { _id: mongoose.Types.ObjectId(recipeId) } },
+            { $match: { _id: new ObjectId(recipeId) } },
             {
                 $lookup: {
                     from: "comments",
@@ -150,7 +152,7 @@ exports.editRecipe = async (req, res) => {
         return res.status(404).json({ error: "Recipe not found" });
     }
 
-    const { recipeName, ingredients, RecipeContent, thumbnail } = req.body;
+    const { recipeName, ingredients, RecipeContent, thumbnail, cookingTime, servings } = req.body;
 
 
     // make an object with the changed variables
@@ -166,6 +168,12 @@ exports.editRecipe = async (req, res) => {
     }
     if (thumbnail && thumbnail.trim()) {
         changedVariables.thumbnail = thumbnail;
+    }
+    if (cookingTime && cookingTime.trim()) {
+        changedVariables.cookingTime = cookingTime;
+    }
+    if (servings != null) {
+        changedVariables.servings = servings;
     }
 
     await RecipeModal.findByIdAndUpdate(recipe_id, changedVariables, { runValidators: true }).then(() => {
@@ -230,7 +238,7 @@ exports.fetchUserRecipes = async (req, res) => {
         console.log("this is id", id);
 
 
-        const recipes = await RecipeModal.find({ user_id: ObjectId(id) }, { _id: 1, recipeName: 1 });
+        const recipes = await RecipeModal.find({ user_id: new ObjectId(id) }, { _id: 1, recipeName: 1 });
         console.log(recipes);
 
 
@@ -250,7 +258,7 @@ exports.askGemini = async (req, res) => {
             return res.status(400).json({ error: "Recipe ID and question are required" });
         }
 
-        const recipe = await RecipeModal.findById(recipeId);
+        const recipe = await RecipeModal.findById(recipeId).lean();
         if (!recipe) {
             return res.status(404).json({ error: "Recipe not found" });
         }
@@ -267,8 +275,10 @@ exports.askGemini = async (req, res) => {
         You are a helpful cooking assistant.
         Here is the recipe:
         Name: ${recipe.recipeName}
-        Ingredients: ${recipe.ingredients}
+        Ingredients: ${recipe.Incredients}
         Content: ${recipe.RecipeContent}
+        Cooking Time: ${recipe.cookingTime || 'Not specified'}
+        Servings: ${recipe.servings || 'Not specified'}
 
         User Question: ${question}
 
@@ -278,10 +288,8 @@ exports.askGemini = async (req, res) => {
         Keep the answer concise and helpful.
         `;
 
-        // console.log("this is prompt", prompt);
-
         const result = await model.generateContent(prompt);
-        const response = await result.response;
+        const response = result.response;
         const text = response.text();
 
         res.status(200).json({ answer: text });

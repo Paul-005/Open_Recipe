@@ -8,6 +8,8 @@ export default function ContentEditingPage() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientInput, setIngredientInput] = useState("");
   const [RecipeContent, setRecipeContent] = useState("");
+  const [cookingTime, setCookingTime] = useState("");
+  const [servings, setServings] = useState("");
 
   const handleAddIngredient = (value) => {
     const component = value.trim();
@@ -100,8 +102,8 @@ export default function ContentEditingPage() {
   const publishContent = async () => {
     setError("");
 
-    if (!recipeName || !Incredients || !RecipeContent || !FoodImg) {
-      setError("Please fill all forms and select an image.");
+    if (!recipeName || !Incredients || !RecipeContent || !cookingTime || !servings) {
+      setError("Please fill all required fields.");
       return;
     }
 
@@ -116,19 +118,23 @@ export default function ContentEditingPage() {
     setPending(true);
 
     try {
-      const imageUrl = await uploadImageToCloudinary(FoodImg);
-
-      if (!imageUrl) {
-        setError("Image upload failed. Cannot publish content.");
-        setPending(false);
-        return;
+      let imageUrl = "";
+      if (FoodImg) {
+        imageUrl = await uploadImageToCloudinary(FoodImg);
+        if (!imageUrl) {
+          setError("Image upload failed. Cannot publish content.");
+          setPending(false);
+          return;
+        }
       }
 
       const postData = {
         recipeName,
-        Incredients,
+        ingredients: Incredients,
         RecipeContent,
         thumbnail: imageUrl,
+        cookingTime: `${cookingTime} mins`,
+        servings: Number(servings),
       };
 
       await axios.post(
@@ -449,8 +455,10 @@ export default function ContentEditingPage() {
                     e.target.style.background = '#fafafa';
                     e.target.style.boxShadow = 'none';
                   }}
-                  required
                 />
+                <p style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.5rem' }}>
+                    Optional: Upload an image for your recipe
+                </p>
                 {imagePreviewUrl && (
                   <img
                     src={imagePreviewUrl}
@@ -501,6 +509,55 @@ export default function ContentEditingPage() {
                   <i className="bi bi-info-circle me-1"></i>
                   Type an ingredient and press <b>Comma</b> or <b>Enter</b> to add it.
                 </small>
+              </div>
+
+              {/* Cooking Time and Servings */}
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>
+                    <i className="bi bi-clock me-2"></i>
+                    Cooking Time (Minutes)
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      style={{ ...inputStyle, paddingRight: '4rem' }}
+                      placeholder="e.g. 30"
+                      value={cookingTime}
+                      onChange={(e) => setCookingTime(e.target.value)}
+                      onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                      onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                      required
+                      min="1"
+                    />
+                    <span style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#64748b',
+                      fontWeight: '600',
+                      pointerEvents: 'none'
+                    }}>mins</span>
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>
+                    <i className="bi bi-people me-2"></i>
+                    No. of People (Servings)
+                  </label>
+                  <input
+                    type="number"
+                    style={inputStyle}
+                    placeholder="e.g. 4"
+                    value={servings}
+                    onChange={(e) => setServings(e.target.value)}
+                    onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                    onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                    required
+                    min="1"
+                  />
+                </div>
               </div>
 
               {/* Recipe Instructions */}

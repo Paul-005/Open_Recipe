@@ -15,8 +15,7 @@ const RecipeCard = ({ data }) => {
     transition: 'all 0.4s ease',
     transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
     border: '1px solid rgba(0, 0, 0, 0.05)',
-    cursor: 'pointer',
-    height: '100%'
+    cursor: 'pointer'
   };
 
   const imageStyle = {
@@ -29,8 +28,7 @@ const RecipeCard = ({ data }) => {
   const contentStyle = {
     padding: '1.5rem',
     display: 'flex',
-    flexDirection: 'column',
-    height: 'calc(100% - 250px)'
+    flexDirection: 'column'
   };
 
   const titleStyle = {
@@ -86,19 +84,21 @@ const RecipeCard = ({ data }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div style={{ position: 'relative' }}>
-        <img
-          src={data.thumbnail}
-          alt={data.recipeName}
-          style={{
-            ...imageStyle,
-            transform: isHovered ? 'scale(1.05)' : 'scale(1)'
-          }}
-        />
-        <div style={badgeStyle}>
-          Recipe
+      {data.thumbnail && (
+        <div style={{ position: 'relative' }}>
+          <img
+            src={data.thumbnail}
+            alt={data.recipeName}
+            style={{
+              ...imageStyle,
+              transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+            }}
+          />
+          <div style={badgeStyle}>
+            Recipe
+          </div>
         </div>
-      </div>
+      )}
 
       <div style={contentStyle}>
         <h3 style={titleStyle}>{data.recipeName}</h3>

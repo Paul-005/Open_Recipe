@@ -455,35 +455,28 @@ export default function OneRecipe() {
                 </button>
               )}
 
-              {/* Quick AI Button */}
-              <button
-                onClick={scrollToAI}
-                style={{
-                  ...editButtonStyle,
-                  background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 15px rgba(14, 165, 233, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(14, 165, 233, 0.3)';
-                }}
-              >
-                <i className="bi bi-stars me-2"></i>
-                Ask AI Assistant
-              </button>
             </div>
 
             {!loading && recipeData.recipeName && (
               <>
                 <h1 style={titleStyle}>{recipeData.recipeName}</h1>
-                <div style={authorStyle}>
-                  <i className="bi bi-person-circle"></i>
-                  Created by {recipeData.email}
+                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={authorStyle}>
+                    <i className="bi bi-person-circle"></i>
+                    Created by {recipeData.email}
+                  </div>
+                  {recipeData.cookingTime && (
+                    <div style={authorStyle}>
+                      <i className="bi bi-clock"></i>
+                      Time: {recipeData.cookingTime}
+                    </div>
+                  )}
+                  {recipeData.servings && (
+                    <div style={authorStyle}>
+                      <i className="bi bi-people"></i>
+                      Servings: {recipeData.servings}
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -736,7 +729,7 @@ export default function OneRecipe() {
                       }}
 
                     >
-                      <i className="bi bi-stars" style={{ color: '#0ea5e9' }}></i>
+                      <i className="bi bi-stars" style={{ color: '#ea580c' }}></i>
                       Ask AI
                     </button>
                   </div>

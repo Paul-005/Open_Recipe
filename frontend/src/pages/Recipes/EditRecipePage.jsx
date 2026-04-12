@@ -7,6 +7,8 @@ export default function EditRecipePage() {
     const [recipeName, setRecipeName] = useState("");
     const [Incredients, setIncredients] = useState("");
     const [RecipeContent, setRecipeContent] = useState("");
+    const [cookingTime, setCookingTime] = useState("");
+    const [servings, setServings] = useState("");
     const [FoodImg, setFoodImage] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
     const [error, setError] = useState("");
@@ -41,8 +43,11 @@ export default function EditRecipePage() {
             const recipe = response.data;
             setOriginalRecipe(recipe);
             setRecipeName(recipe.recipeName || "");
-            setIncredients(recipe.Incredients || "");
+            setIncredients(recipe.ingredients || recipe.Incredients || "");
             setRecipeContent(recipe.RecipeContent || "");
+            const rawTime = recipe.cookingTime || "";
+            setCookingTime(rawTime.replace(/[^0-9]/g, ""));
+            setServings(recipe.servings || "");
             setImagePreviewUrl(recipe.thumbnail || null);
             setLoading(false);
         } catch (error) {
@@ -83,12 +88,20 @@ export default function EditRecipePage() {
             changes.recipeName = recipeName;
         }
 
-        if (Incredients !== originalRecipe.Incredients) {
-            changes.Incredients = Incredients;
+        if (Incredients !== originalRecipe.ingredients && Incredients !== originalRecipe.Incredients) {
+            changes.ingredients = Incredients;
         }
 
         if (RecipeContent !== originalRecipe.RecipeContent) {
             changes.RecipeContent = RecipeContent;
+        }
+
+        if (cookingTime !== (originalRecipe.cookingTime ? originalRecipe.cookingTime.replace(/[^0-9]/g, "") : "")) {
+            changes.cookingTime = `${cookingTime} mins`;
+        }
+
+        if (servings !== originalRecipe.servings) {
+            changes.servings = Number(servings);
         }
 
         return changes;
@@ -479,6 +492,55 @@ export default function EditRecipePage() {
                                     }}
                                     required
                                 />
+                            </div>
+
+                            {/* Cooking Time and Servings */}
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={labelStyle}>
+                                        <i className="bi bi-clock me-2"></i>
+                                        Cooking Time (Minutes)
+                                    </label>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="number"
+                                            style={{ ...inputStyle, paddingRight: '4rem' }}
+                                            placeholder="e.g. 30"
+                                            value={cookingTime}
+                                            onChange={(e) => setCookingTime(e.target.value)}
+                                            onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                                            onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                                            required
+                                            min="1"
+                                        />
+                                        <span style={{
+                                            position: 'absolute',
+                                            right: '1rem',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            color: '#64748b',
+                                            fontWeight: '600',
+                                            pointerEvents: 'none'
+                                        }}>mins</span>
+                                    </div>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={labelStyle}>
+                                        <i className="bi bi-people me-2"></i>
+                                        No. of People (Servings)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        style={inputStyle}
+                                        placeholder="e.g. 4"
+                                        value={servings}
+                                        onChange={(e) => setServings(e.target.value)}
+                                        onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                                        onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                                        required
+                                        min="1"
+                                    />
+                                </div>
                             </div>
 
                             {/* Recipe Instructions */}

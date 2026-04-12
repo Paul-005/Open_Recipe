@@ -16,6 +16,15 @@ const RecipeModal = Mongoose.model("Recipes", {
   },
   thumbnail: {
     type: String,
+    required: false,
+    default: "",
+  },
+  cookingTime: {
+    type: String,
+    required: true,
+  },
+  servings: {
+    type: Number,
     required: true,
   },
   user_id: {
