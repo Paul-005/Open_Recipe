@@ -1,6 +1,8 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+
 
 export default function OneRecipe() {
   const [recipeData, setRecipeData] = useState({});
@@ -17,6 +19,11 @@ export default function OneRecipe() {
   const [aiResponse, setAiResponse] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const aiSectionRef = useRef(null);
+
+  const scrollToAI = () => {
+    aiSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     verifyUser();
@@ -399,6 +406,17 @@ export default function OneRecipe() {
           background: #e0e0e0;
           border-radius: 10px;
         }
+
+        .ai-response-container p {
+          margin-bottom: 0.5rem;
+        }
+        .ai-response-container ul, .ai-response-container ol {
+          margin-bottom: 0.5rem;
+          padding-left: 1.5rem;
+        }
+        .ai-response-container li {
+          margin-bottom: 0.25rem;
+        }
       `}</style>
 
       <div style={containerStyle}>
@@ -436,6 +454,28 @@ export default function OneRecipe() {
                   Edit Recipe
                 </button>
               )}
+
+              {/* Quick AI Button */}
+              <button
+                onClick={scrollToAI}
+                style={{
+                  ...editButtonStyle,
+                  background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 15px rgba(14, 165, 233, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(14, 165, 233, 0.3)';
+                }}
+              >
+                <i className="bi bi-stars me-2"></i>
+                Ask AI Assistant
+              </button>
             </div>
 
             {!loading && recipeData.recipeName && (
@@ -491,12 +531,12 @@ export default function OneRecipe() {
                     </h2>
                     <div style={ingredientPillContainerStyle}>
                       {recipeData.Incredients ? recipeData.Incredients.split(',').map((ingredient, index) => (
-                          ingredient.trim() && (
-                            <div key={index} style={ingredientPillStyle} className="ingredient-pill">
-                              <i className="bi bi-check2-circle me-2" style={{color: '#f97316'}}></i>
-                              {ingredient.trim()}
-                            </div>
-                          )
+                        ingredient.trim() && (
+                          <div key={index} style={ingredientPillStyle} className="ingredient-pill">
+                            <i className="bi bi-check2-circle me-2" style={{ color: '#f97316' }}></i>
+                            {ingredient.trim()}
+                          </div>
+                        )
                       )) : <div style={contentStyle}>No ingredients listed</div>}
                     </div>
                   </div>
@@ -516,7 +556,7 @@ export default function OneRecipe() {
                 </div>
 
                 {/* AI Assistant Section */}
-                <div style={contentCardStyle}>
+                <div style={contentCardStyle} ref={aiSectionRef}>
                   <div style={{
                     background: 'linear-gradient(135deg, #e0f2fe, #bae6fd)',
                     padding: '2rem',
@@ -561,28 +601,28 @@ export default function OneRecipe() {
                           gap: '0.5rem'
                         }}
                       >
-                         {aiLoading ? (
-                             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                         ) : (
-                             <i className="bi bi-magic"></i>
-                         )}
-                         Ask
+                        {aiLoading ? (
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        ) : (
+                          <i className="bi bi-magic"></i>
+                        )}
+                        Ask
                       </button>
                     </form>
 
                     {aiError && (
-                        <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '0.75rem', marginBottom: '1rem' }}>
-                            {aiError}
-                        </div>
+                      <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '0.75rem', marginBottom: '1rem' }}>
+                        {aiError}
+                      </div>
                     )}
 
                     {aiResponse && (
-                        <div style={{ padding: '1.5rem', background: 'white', borderRadius: '1rem', border: '1px solid #bae6fd' }}>
-                             <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#0f172a', marginBottom: '0.5rem' }}>AI Answer:</h4>
-                             <div style={{ lineHeight: '1.6', color: '#334155', whiteSpace: 'pre-wrap' }}>
-                                 {aiResponse}
-                             </div>
+                      <div style={{ padding: '1.5rem', background: 'white', borderRadius: '1rem', border: '1px solid #bae6fd' }}>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#0f172a', marginBottom: '0.5rem' }}>AI Answer:</h4>
+                        <div className="ai-response-container" style={{ lineHeight: '1.5', color: '#334155' }}>
+                          <ReactMarkdown>{aiResponse}</ReactMarkdown>
                         </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -656,18 +696,50 @@ export default function OneRecipe() {
                   border: '1px solid #fed7aa',
                   padding: '1.5rem 1.25rem',
                 }}>
-                  <h2 className="comment-title" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    fontSize: '1.5rem',
-                    fontWeight: 700,
-                    color: '#ea580c',
-                    marginBottom: '1rem',
-                  }}>
-                    <i className="bi bi-chat-dots"></i>
-                    Comments ({recipeData.comments?.length || 0})
-                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h2 className="comment-title" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      color: '#ea580c',
+                      margin: 0,
+                    }}>
+                      <i className="bi bi-chat-dots"></i>
+                      Comments ({recipeData.comments?.length || 0})
+                    </h2>
+
+                    <button
+                      onClick={scrollToAI}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        background: 'white',
+                        color: '#ea580c',
+                        border: '1px solid #ea580c',
+                        padding: '0.4rem 0.9rem',
+                        borderRadius: '2rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#ea580c';
+                        e.target.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'white';
+                        e.target.style.color = '#ea580c';
+                      }}
+
+                    >
+                      <i className="bi bi-stars" style={{ color: '#0ea5e9' }}></i>
+                      Ask AI
+                    </button>
+                  </div>
 
                   {/* Add Comment Form */}
                   <form
@@ -721,7 +793,7 @@ export default function OneRecipe() {
                       }}
                       disabled={commentLoading}
                     />
-                    
+
                     {commentError && (
                       <div style={{ color: '#dc2626', fontWeight: 500, fontSize: '0.85rem' }}>
                         <i className="bi bi-exclamation-triangle" style={{ marginRight: '0.4rem' }}></i>
@@ -734,7 +806,7 @@ export default function OneRecipe() {
                         {commentSuccess}
                       </div>
                     )}
-                    
+
                     <button
                       className="comment-button"
                       type="submit"
@@ -768,9 +840,9 @@ export default function OneRecipe() {
 
                   {/* Comments List */}
                   {recipeData.comments && recipeData.comments.length > 0 ? (
-                    <div className="comments-list" style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
+                    <div className="comments-list" style={{
+                      display: 'flex',
+                      flexDirection: 'column',
                       gap: '0.85rem',
                       maxHeight: '600px',
                       overflowY: 'auto',

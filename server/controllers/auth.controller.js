@@ -12,7 +12,7 @@ const JoiValSchema = Joi.object({
 
 const secret = process.env.JWT_SECRET;
 
-const regsiterUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const user = req.body;
 
   if (!user) return res.status(402);
@@ -106,4 +106,4 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { loginUser, regsiterUser }
+module.exports = { loginUser, registerUser }

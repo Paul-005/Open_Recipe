@@ -14,15 +14,15 @@ exports.addNewRecipe = async (req, res) => {
             return res.status(401).json({ error: "Invalid token not found in token" });
         }
         const user_id = decoded.id;
-        const { recipeName, Incredients, RecipeContent, thumbnail } = req.body;
+        const { recipeName, ingredients, RecipeContent, thumbnail } = req.body;
 
-        if (!recipeName || !RecipeContent || !thumbnail || !Incredients) {
+        if (!recipeName || !RecipeContent || !thumbnail || !ingredients) {
             return res.status(400).json({ error: "Recipe name and content are required" });
         }
 
         const RecipeData = new RecipeModal({
             recipeName,
-            Incredients,
+            ingredients,
             RecipeContent,
             thumbnail,
             user_id
@@ -77,7 +77,7 @@ exports.fetchRecipeById = async (req, res) => {
     }
 
 
-    
+
 
 };
 
@@ -150,7 +150,7 @@ exports.editRecipe = async (req, res) => {
         return res.status(404).json({ error: "Recipe not found" });
     }
 
-    const { recipeName, Incredients, RecipeContent, thumbnail } = req.body;
+    const { recipeName, ingredients, RecipeContent, thumbnail } = req.body;
 
 
     // make an object with the changed variables
@@ -158,8 +158,8 @@ exports.editRecipe = async (req, res) => {
     if (recipeName && recipeName.trim()) {
         changedVariables.recipeName = recipeName;
     }
-    if (Incredients && Incredients.trim()) {
-        changedVariables.Incredients = Incredients;
+    if (ingredients && ingredients.trim()) {
+        changedVariables.ingredients = ingredients;
     }
     if (RecipeContent && RecipeContent.trim()) {
         changedVariables.RecipeContent = RecipeContent;
@@ -245,9 +245,9 @@ exports.fetchUserRecipes = async (req, res) => {
 exports.askGemini = async (req, res) => {
     try {
         const { recipeId, question } = req.body;
-        
+
         if (!recipeId || !question) {
-             return res.status(400).json({ error: "Recipe ID and question are required" });
+            return res.status(400).json({ error: "Recipe ID and question are required" });
         }
 
         const recipe = await RecipeModal.findById(recipeId);
@@ -261,13 +261,13 @@ exports.askGemini = async (req, res) => {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
         const prompt = `
         You are a helpful cooking assistant.
         Here is the recipe:
         Name: ${recipe.recipeName}
-        Ingredients: ${recipe.Incredients}
+        Ingredients: ${recipe.ingredients}
         Content: ${recipe.RecipeContent}
 
         User Question: ${question}

@@ -6,7 +6,7 @@ const RecipeModal = Mongoose.model("Recipes", {
     type: String,
     required: true,
   },
-  Incredients: {
+  ingredients: {
     type: String,
     required: true,
   },

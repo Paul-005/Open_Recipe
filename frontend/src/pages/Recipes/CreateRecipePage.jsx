@@ -31,17 +31,17 @@ export default function ContentEditingPage() {
     if (val.includes(",")) {
       const parts = val.split(",");
       const newParts = parts.map(p => p.trim()).filter(p => p !== "");
-      
+
       let newList = [...ingredientsList];
       newParts.forEach(part => {
-         if (!newList.includes(part)) {
-             newList.push(part);
-         }
+        if (!newList.includes(part)) {
+          newList.push(part);
+        }
       });
-      
+
       setIngredientsList(newList);
       setIncredients(newList.join(", "));
-      setIngredientInput(""); 
+      setIngredientInput("");
     } else {
       setIngredientInput(val);
     }
@@ -470,8 +470,8 @@ export default function ContentEditingPage() {
                   {ingredientsList.map((ing, index) => (
                     <div key={index} style={chipStyle}>
                       <span>{ing}</span>
-                      <i 
-                        className="bi bi-x" 
+                      <i
+                        className="bi bi-x"
                         style={chipCloseStyle}
                         onClick={() => removeIngredient(index)}
                         onMouseEnter={(e) => e.target.style.color = '#c2410c'}
