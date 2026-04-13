@@ -4,8 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js",
+    "start": "node app.js --no-warnings",
     "test": "jest --watchAll --detectOpenHandles"
   },
   "dependencies": {

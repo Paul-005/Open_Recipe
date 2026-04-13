@@ -122,11 +122,15 @@ export default function Recipes() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
   useEffect(() => {
     getRecipes();
   }, []);
 
   const getRecipes = () => {
+    setLoading(true);
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/recipes`)
       .then((res) => {
@@ -136,6 +140,32 @@ export default function Recipes() {
       })
       .catch((err) => {
         setError(err.message);
+        setLoading(false);
+      });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      getRecipes();
+      return;
+    }
+
+    setIsSearching(true);
+    setLoading(true);
+    setError("");
+
+    axios
+      .post(`${process.env.REACT_APP_BACKEND_URL}/recipes/search`, { query: searchQuery })
+      .then((res) => {
+        setRecipesData(res.data);
+        setIsSearching(false);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Search error:", err);
+        setError("AI Search failed. Please try again later.");
+        setIsSearching(false);
         setLoading(false);
       });
   };
@@ -259,6 +289,77 @@ export default function Recipes() {
             <p style={heroSubtitleStyle}>
               Discover amazing recipes crafted by our passionate community of home cooks and professional chefs from around the world.
             </p>
+
+            {/* Semantic AI Search Bar */}
+            <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center' }}>
+              <form onSubmit={handleSearch} style={{ position: 'relative', width: '100%', maxWidth: '650px' }}>
+                <input
+                  type="text"
+                  placeholder="Spicy Mexican dinner"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '1.25rem 1.5rem',
+                    paddingRight: '5rem',
+                    borderRadius: '4rem',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: '1.1rem',
+                    color: '#1e293b',
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease',
+                    fontFamily: 'inherit'
+                  }}
+                  onFocus={(e) => e.target.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)'}
+                  onBlur={(e) => e.target.style.boxShadow = '0 15px 35px rgba(0,0,0,0.2)'}
+                />
+                <button
+                  type="submit"
+                  disabled={isSearching}
+                  style={{
+                    position: 'absolute',
+                    right: '0.5rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+                    color: 'white',
+                    border: 'none',
+                    height: '3.5rem',
+                    width: '3.5rem',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: isSearching ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSearching) {
+                      e.target.style.transform = 'translateY(-50%) scale(1.05)';
+                      e.target.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(-50%) scale(1)';
+                    e.target.style.background = 'linear-gradient(135deg, #0f172a, #1e293b)';
+                  }}
+                >
+                  {isSearching ? (
+                    <div style={{
+                      width: '1.2rem', height: '1.2rem',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTop: '2px solid white',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
+                  ) : (
+                    <i className="bi bi-search" style={{ fontSize: '1.2rem' }}></i>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </section>
 

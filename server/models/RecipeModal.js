@@ -27,6 +27,9 @@ const RecipeModal = Mongoose.model("Recipes", {
     type: Number,
     required: true,
   },
+  embedding: {
+    type: [Number], // array of floats
+  },
   user_id: {
     type: Schema.Types.ObjectId, ref: 'Users', required: true,
   },

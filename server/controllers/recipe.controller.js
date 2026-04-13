@@ -4,6 +4,7 @@ const RecipeModal = require("../models/RecipeModal");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+const getEmbedding = require("../utils/embedding");
 
 // Add new recipe
 exports.addNewRecipe = async (req, res) => {
@@ -20,6 +21,9 @@ exports.addNewRecipe = async (req, res) => {
             return res.status(400).json({ error: "All required fields must be provided" });
         }
 
+        const embeddingText = `Recipe Name: ${recipeName}. Ingredients: ${ingredients} Cooking Time: ${cookingTime} Servings: ${servings}.`;
+        const embedding = await getEmbedding(embeddingText);
+
         const RecipeData = new RecipeModal({
             recipeName,
             ingredients,
@@ -27,7 +31,8 @@ exports.addNewRecipe = async (req, res) => {
             thumbnail,
             cookingTime,
             servings,
-            user_id
+            user_id,
+            embedding
         });
 
         await RecipeData.save();
@@ -45,6 +50,46 @@ exports.addNewRecipe = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         return res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+exports.semanticSearch = async (req, res) => {
+    try {
+        const query = req.body.query || req.query.q;
+        if (!query) {
+            return res.status(400).json({ error: "Query is required" });
+        }
+
+        const queryEmbedding = await getEmbedding(query);
+
+        const recipes = await RecipeModal.find({}, {
+            embedding: 1,
+            recipeName: 1,
+            ingredients: 1,
+            cookingTime: 1,
+            servings: 1,
+            user_id: 1,
+        });
+
+        // cosine similarity
+        function cosineSimilarity(a, b) {
+            const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+            const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+            const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+            return dot / (magA * magB);
+        }
+
+        const scored = recipes.map((r) => ({
+            recipe: r,
+            score: cosineSimilarity(queryEmbedding, r.embedding),
+        }))
+
+        scored.sort((a, b) => b.score - a.score);
+
+        res.json(scored.slice(0, 10).map((s) => s.recipe));
+    } catch (error) {
+        console.error("Error in semantic search:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
