@@ -13,5 +13,6 @@ recipesRoute.delete("/comment/:id", verifyUser, recipeControllers.deleteComment)
 recipesRoute.get("/:id", verifyUser, recipeControllers.fetchRecipeById);
 recipesRoute.delete("/:id", verifyUser, recipeControllers.deleteRecipe);
 recipesRoute.post("/ask-ai", verifyUser, recipeControllers.askGemini);
+recipesRoute.post("/search", recipeControllers.semanticSearch);
 
 module.exports = recipesRoute;

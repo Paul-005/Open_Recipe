@@ -523,7 +523,7 @@ export default function OneRecipe() {
                       Ingredients
                     </h2>
                     <div style={ingredientPillContainerStyle}>
-                      {recipeData.Incredients ? recipeData.Incredients.split(',').map((ingredient, index) => (
+                      {recipeData.ingredients ? recipeData.ingredients.split(',').map((ingredient, index) => (
                         ingredient.trim() && (
                           <div key={index} style={ingredientPillStyle} className="ingredient-pill">
                             <i className="bi bi-check2-circle me-2" style={{ color: '#f97316' }}></i>
