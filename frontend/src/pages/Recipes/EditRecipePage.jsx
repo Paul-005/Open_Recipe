@@ -44,7 +44,11 @@ export default function EditRecipePage() {
             setOriginalRecipe(recipe);
             setRecipeName(recipe.recipeName || "");
             setIncredients(recipe.ingredients || recipe.Incredients || "");
-            setRecipeContent(recipe.RecipeContent || "");
+            setRecipeContent(
+                Array.isArray(recipe.RecipeContent)
+                    ? recipe.RecipeContent.join("\n")
+                    : (recipe.RecipeContent || "")
+            );
             const rawTime = recipe.cookingTime || "";
             setCookingTime(rawTime.replace(/[^0-9]/g, ""));
             setServings(recipe.servings || "");

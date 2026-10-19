@@ -6,6 +6,23 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const getEmbedding = require("../utils/embedding");
 
+// Helper to format RecipeContent: if it is text/string, separate using fullstop (.)
+const formatRecipeContent = (content) => {
+    if (!content) return [];
+    if (Array.isArray(content)) {
+        return content
+            .map((step) => (typeof step === "string" ? step.trim() : String(step).trim()))
+            .filter((step) => step.length > 0);
+    }
+    if (typeof content === "string") {
+        return content
+            .split(".")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0);
+    }
+    return [];
+};
+
 // Add new recipe
 exports.addNewRecipe = async (req, res) => {
     try {
@@ -17,17 +34,24 @@ exports.addNewRecipe = async (req, res) => {
         const user_id = decoded.id;
         const { recipeName, ingredients, RecipeContent, thumbnail, cookingTime, servings } = req.body;
 
-        if (!recipeName || !RecipeContent || !ingredients || !cookingTime || servings == null) {
+        const formattedRecipeContent = formatRecipeContent(RecipeContent);
+
+        if (!recipeName || !formattedRecipeContent || formattedRecipeContent.length === 0 || !ingredients || !cookingTime || servings == null) {
             return res.status(400).json({ error: "All required fields must be provided" });
         }
 
-        const embeddingText = `Recipe Name: ${recipeName}. Ingredients: ${ingredients} Cooking Time: ${cookingTime} Servings: ${servings}.`;
-        const embedding = await getEmbedding(embeddingText);
+        let embedding = [];
+        try {
+            const embeddingText = `Recipe Name: ${recipeName}. Ingredients: ${ingredients} Cooking Time: ${cookingTime} Servings: ${servings}.`;
+            embedding = await getEmbedding(embeddingText);
+        } catch (embErr) {
+            console.warn("Embedding generation skipped:", embErr.message);
+        }
 
         const RecipeData = new RecipeModal({
             recipeName,
             ingredients,
-            RecipeContent,
+            RecipeContent: formattedRecipeContent,
             thumbnail,
             cookingTime,
             servings,
@@ -117,7 +141,10 @@ exports.fetchRecipeById = async (req, res) => {
             return res.status(404).json({ error: "Recipe not found" });
         }
 
-        res.status(200).json(result[0]);
+        const recipe = result[0];
+        recipe.RecipeContent = formatRecipeContent(recipe.RecipeContent);
+
+        res.status(200).json(recipe);
     } catch (error) {
         console.error("Error fetching recipe by id:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -132,10 +159,16 @@ exports.fetchRecipeById = async (req, res) => {
 exports.fetchAllRecipes = async (req, res) => {
     try {
         const recipes = await RecipeModal.find({}, {
-            _id: 1, recipeName: 1, RecipeContent: { $substrCP: ["$RecipeContent", 0, 20] },
+            _id: 1, recipeName: 1, RecipeContent: 1,
             thumbnail: 1,
-        });
-        res.status(200).json(recipes);
+        }).lean();
+
+        const formattedRecipes = recipes.map((recipe) => ({
+            ...recipe,
+            RecipeContent: formatRecipeContent(recipe.RecipeContent),
+        }));
+
+        res.status(200).json(formattedRecipes);
     } catch (error) {
         console.error("Fetch all recipes error:", error.message);
         res.status(500).json({ error: error.message });
@@ -208,8 +241,11 @@ exports.editRecipe = async (req, res) => {
     if (ingredients && ingredients.trim()) {
         changedVariables.ingredients = ingredients;
     }
-    if (RecipeContent && RecipeContent.trim()) {
-        changedVariables.RecipeContent = RecipeContent;
+    if (RecipeContent) {
+        const formatted = formatRecipeContent(RecipeContent);
+        if (formatted.length > 0) {
+            changedVariables.RecipeContent = formatted;
+        }
     }
     if (thumbnail && thumbnail.trim()) {
         changedVariables.thumbnail = thumbnail;
@@ -321,7 +357,7 @@ exports.askGemini = async (req, res) => {
         Here is the recipe:
         Name: ${recipe.recipeName}
         Ingredients: ${recipe.Incredients}
-        Content: ${recipe.RecipeContent}
+        Content: ${Array.isArray(recipe.RecipeContent) ? recipe.RecipeContent.join("\n") : recipe.RecipeContent}
         Cooking Time: ${recipe.cookingTime || 'Not specified'}
         Servings: ${recipe.servings || 'Not specified'}
 

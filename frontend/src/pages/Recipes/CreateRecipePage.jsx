@@ -7,7 +7,56 @@ export default function ContentEditingPage() {
   const [Incredients, setIncredients] = useState("");
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientInput, setIngredientInput] = useState("");
-  const [RecipeContent, setRecipeContent] = useState("");
+  const [instructionsList, setInstructionsList] = useState(["", ""]);
+
+  const handleInstructionChange = (index, value) => {
+    let updated = [...instructionsList];
+    updated[index] = value;
+
+    // While typing on the last box, if it has content, open another box below
+    if (index === updated.length - 1 && value.trim() !== "") {
+      updated.push("");
+    } else {
+      // If there are multiple trailing empty boxes, keep only one empty box below the last filled box (at least 2 boxes minimum)
+      while (
+        updated.length > 2 &&
+        updated[updated.length - 1].trim() === "" &&
+        updated[updated.length - 2].trim() === ""
+      ) {
+        updated.pop();
+      }
+    }
+
+    setInstructionsList(updated);
+  };
+
+  const removeInstructionStep = (index) => {
+    let updated = instructionsList.filter((_, i) => i !== index);
+    if (updated.length < 2) {
+      while (updated.length < 2) {
+        updated.push("");
+      }
+    } else if (updated[updated.length - 1].trim() !== "") {
+      updated.push("");
+    }
+    setInstructionsList(updated);
+  };
+
+  const handleInstructionPaste = (index, e) => {
+    const pastedText = e.clipboardData.getData("text");
+    if (pastedText && pastedText.includes("\n")) {
+      e.preventDefault();
+      const lines = pastedText
+        .split(/\r?\n+/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      if (lines.length > 0) {
+        const updated = [...instructionsList];
+        updated.splice(index, 1, ...lines);
+        setInstructionsList(updated);
+      }
+    }
+  };
   const [cookingTime, setCookingTime] = useState("");
   const [servings, setServings] = useState("");
 
@@ -102,8 +151,12 @@ export default function ContentEditingPage() {
   const publishContent = async () => {
     setError("");
 
-    if (!recipeName || !Incredients || !RecipeContent || !cookingTime || !servings) {
-      setError("Please fill all required fields.");
+    const validInstructions = instructionsList
+      .map((step) => step.trim())
+      .filter((step) => step.length > 0);
+
+    if (!recipeName || !Incredients || validInstructions.length === 0 || !cookingTime || !servings) {
+      setError("Please fill all required fields, including at least one cooking instruction step.");
       return;
     }
 
@@ -131,7 +184,7 @@ export default function ContentEditingPage() {
       const postData = {
         recipeName,
         ingredients: Incredients,
-        RecipeContent,
+        RecipeContent: validInstructions,
         thumbnail: imageUrl,
         cookingTime: `${cookingTime} mins`,
         servings: Number(servings),
@@ -457,7 +510,7 @@ export default function ContentEditingPage() {
                   }}
                 />
                 <p style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.5rem' }}>
-                    Optional: Upload an image for your recipe
+                  Optional: Upload an image for your recipe
                 </p>
                 {imagePreviewUrl && (
                   <img
@@ -560,27 +613,139 @@ export default function ContentEditingPage() {
                 </div>
               </div>
 
-              {/* Recipe Instructions */}
+              {/* Recipe Instructions - Step by Step */}
               <div style={inputGroupStyle}>
-                <label style={labelStyle}>
-                  <i className="bi bi-clipboard-check me-2"></i>
-                  Cooking Instructions
-                </label>
-                <textarea
-                  style={largeTextareaStyle}
-                  placeholder="Write detailed step-by-step cooking instructions..."
-                  value={RecipeContent}
-                  onChange={(e) => setRecipeContent(e.target.value)}
-                  onFocus={(e) => {
-                    Object.assign(e.target.style, inputFocusStyle);
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.background = '#fafafa';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                  required
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <label style={{ ...labelStyle, marginBottom: 0 }}>
+                    <i className="bi bi-clipboard-check me-2" style={{ color: '#10b981' }}></i>
+                    Cooking Instructions (Step by Step)
+                  </label>
+                  <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                    {instructionsList.filter(s => s.trim().length > 0).length} {instructionsList.filter(s => s.trim().length > 0).length === 1 ? 'step' : 'steps'} added
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+                  {instructionsList.map((step, index) => {
+                    const isPreviousEmpty = index > 0 && (!instructionsList[index - 1] || instructionsList[index - 1].trim() === "");
+
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          display: 'flex',
+                          gap: '0.75rem',
+                          alignItems: 'flex-start',
+                          background: isPreviousEmpty ? '#f8fafc' : '#fafafa',
+                          padding: '1rem',
+                          borderRadius: '1rem',
+                          border: '2px solid',
+                          borderColor: isPreviousEmpty ? '#f1f5f9' : '#e5e7eb',
+                          opacity: isPreviousEmpty ? 0.65 : 1,
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: isPreviousEmpty
+                              ? '#cbd5e1'
+                              : 'linear-gradient(135deg, #f2750a, #ea580c)',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: '700',
+                            fontSize: '0.85rem',
+                            flexShrink: 0,
+                            marginTop: '0.25rem',
+                          }}
+                        >
+                          {index + 1}
+                        </div>
+
+                        <div style={{ flex: 1 }}>
+                          <textarea
+                            rows={2}
+                            disabled={isPreviousEmpty}
+                            title={isPreviousEmpty ? `Step ${index}` : ""}
+                            style={{
+                              ...inputStyle,
+                              padding: '0.75rem 1rem',
+                              minHeight: '60px',
+                              resize: isPreviousEmpty ? 'none' : 'vertical',
+                              background: isPreviousEmpty ? '#f1f5f9' : 'white',
+                              color: isPreviousEmpty ? '#94a3b8' : '#1e293b',
+                              borderColor: isPreviousEmpty ? '#e2e8f0' : '#e5e7eb',
+                              cursor: isPreviousEmpty ? 'not-allowed' : 'text',
+                            }}
+                            placeholder={
+                              isPreviousEmpty
+                                ? `Complete Step ${index} first to unlock this step...`
+                                : `Step ${index + 1}: e.g. ${index === 0
+                                  ? 'Preheat oven to 375°F (190°C) and grease a baking dish...'
+                                  : index === 1
+                                    ? 'In a large bowl, whisk together the ingredients...'
+                                    : 'Cook until golden brown, then serve warm...'
+                                }`
+                            }
+                            value={step}
+                            onChange={(e) => handleInstructionChange(index, e.target.value)}
+                            onPaste={(e) => handleInstructionPaste(index, e)}
+                            onFocus={(e) => {
+                              if (!isPreviousEmpty) {
+                                Object.assign(e.target.style, inputFocusStyle);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = isPreviousEmpty ? '#e2e8f0' : '#e5e7eb';
+                              e.target.style.boxShadow = 'none';
+                            }}
+                          />
+                        </div>
+
+                        {instructionsList.length > 2 && !isPreviousEmpty && (
+                          <button
+                            type="button"
+                            onClick={() => removeInstructionStep(index)}
+                            title="Remove this step"
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#94a3b8',
+                              cursor: 'pointer',
+                              padding: '0.5rem',
+                              borderRadius: '0.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1.25rem',
+                              transition: 'color 0.2s ease, background 0.2s ease',
+                              marginTop: '0.15rem',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#ef4444';
+                              e.currentTarget.style.background = '#fee2e2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#94a3b8';
+                              e.currentTarget.style.background = 'transparent';
+                            }}
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <small style={{ color: '#6b7280', marginTop: '0.5rem', display: 'block', fontSize: '0.8rem' }}>
+                  <i className="bi bi-info-circle me-1"></i>
+                  The next step opens automatically as you type. Fill in each step in order.
+                </small>
               </div>
 
               {/* Submit Button */}

@@ -543,7 +543,49 @@ export default function OneRecipe() {
                       Instructions
                     </h2>
                     <div style={contentStyle}>
-                      {recipeData.RecipeContent}
+                      {Array.isArray(recipeData.RecipeContent) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                          {recipeData.RecipeContent.map((step, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '1.25rem',
+                                padding: '1.25rem 1.5rem',
+                                background: '#f8fafc',
+                                borderRadius: '1.25rem',
+                                border: '1px solid #e2e8f0',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.02)',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  minWidth: '2.25rem',
+                                  height: '2.25rem',
+                                  borderRadius: '50%',
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  color: 'white',
+                                  fontWeight: '700',
+                                  fontSize: '0.95rem',
+                                  flexShrink: 0,
+                                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                                }}
+                              >
+                                {index + 1}
+                              </span>
+                              <div style={{ lineHeight: '1.65', color: '#334155', fontSize: '1.05rem', paddingTop: '0.15rem' }}>
+                                {step}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        recipeData.RecipeContent
+                      )}
                     </div>
                   </div>
                 </div>

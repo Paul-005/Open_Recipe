@@ -11,7 +11,7 @@ const RecipeModal = Mongoose.model("Recipes", {
     required: true,
   },
   RecipeContent: {
-    type: String,
+    type: Schema.Types.Mixed,
     required: true,
   },
   thumbnail: {

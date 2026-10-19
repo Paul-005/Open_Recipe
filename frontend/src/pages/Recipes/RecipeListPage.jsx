@@ -102,7 +102,9 @@ const RecipeCard = ({ data }) => {
 
       <div style={contentStyle}>
         <h3 style={titleStyle}>{data.recipeName}</h3>
-        <p style={descriptionStyle}>{data.RecipeContent}</p>
+        <p style={descriptionStyle}>
+          {Array.isArray(data.RecipeContent) ? data.RecipeContent.join(". ") : data.RecipeContent}
+        </p>
 
         <button
           style={buttonStyle}
