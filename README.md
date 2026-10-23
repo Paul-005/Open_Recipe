@@ -45,20 +45,54 @@ To get started with Open Recipe, follow these steps:
    ```
 
 5. **Set up environment variables:**
-   - Create a `.env` file in the `server` folder (see `server/.env.example`).
-   - Create a `.env` file in the `frontend` folder with `REACT_APP_BACKEND_URL=http://localhost:5000/api`.
+   - **Backend (`server/.env`):**
+     Copy the sample environment file in the `server` directory and fill in your credentials:
+     ```bash
+     cp server/.env.example server/.env
+     ```
+   - **Frontend (`frontend/.env`):**
+     Copy the sample environment file in the `frontend` directory:
+     ```bash
+     cp frontend/.env.example frontend/.env
+     ```
 
 6. **Run the application:**
-   - Start the backend server:
+   - Start the backend server (runs on port 5000 by default):
      ```bash
      cd server
      npm start
      ```
-   - Start the frontend server:
+   - Start the frontend server (runs on port 3000):
      ```bash
-     cd frontend
+     cd ../frontend
      npm start
      ```
+
+## Environment Variables Configuration
+
+### Backend (`server/.env`)
+Create a `.env` file inside the `server/` directory based on [`server/.env.example`](file:///home/paul/Documents/Open_Recipe/server/.env.example):
+
+| Variable | Description | Required | Default / Example |
+| :--- | :--- | :--- | :--- |
+| `PORT` | Port number on which the backend server runs | No | `5000` |
+| `MONGODB_URL` | MongoDB connection URI string | Yes | `mongodb+srv://<username>:<password>@cluster.mongodb.net/<dbname>` |
+| `JWT_SECRET` | Secret key used for signing & verifying JWT authentication tokens | Yes | `your_jwt_secret_key_here` |
+| `GEMINI_API_KEY` | Google Gemini API Key for semantic search and AI culinary assistant | Yes | `your_gemini_api_key_here` |
+
+### Frontend (`frontend/.env`)
+Create a `.env` file inside the `frontend/` directory based on [`frontend/.env.example`](file:///home/paul/Documents/Open_Recipe/frontend/.env.example):
+
+| Variable | Description | Required | Default / Example |
+| :--- | :--- | :--- | :--- |
+| `REACT_APP_BACKEND_URL` | Base API URL pointing to the Express server with `/api` prefix | Yes | `http://localhost:5000/api` |
+
+> [!IMPORTANT]
+> - Ensure `REACT_APP_BACKEND_URL` includes the `/api` prefix and matches the backend port (`5000` by default). Do not include a trailing slash.
+> - The `.env` file must be in the `frontend/` root folder (not in `frontend/src/`).
+> - After creating or modifying `frontend/.env`, you must restart the frontend development server (`npm start`) for changes to be applied.
+
+
 
 ## API Documentation
 All API endpoints are prefixed with `/api`.
