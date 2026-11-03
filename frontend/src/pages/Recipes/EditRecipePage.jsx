@@ -22,6 +22,32 @@ export default function EditRecipePage() {
     const [visibility, setVisibility] = useState("public");
     const [sourceRecipeInfo, setSourceRecipeInfo] = useState(null);
     const [isOwner, setIsOwner] = useState(true);
+    const [forking, setForking] = useState(false);
+
+    const handleForkAndEdit = async () => {
+        if (!localStorage.getItem("jwt")) {
+            navigate("/login");
+            return;
+        }
+        setForking(true);
+        setError("");
+        try {
+            const res = await axios.post(
+                `${process.env.REACT_APP_BACKEND_URL}/recipes/${id}/fork`,
+                {},
+                {
+                    headers: {
+                        token: localStorage.getItem("jwt"),
+                    },
+                }
+            );
+            navigate(`/edit-recipe/${res.data.forkId}`);
+            window.location.reload();
+        } catch (err) {
+            setError(err.response?.data?.error || err.message || "Failed to fork recipe.");
+            setForking(false);
+        }
+    };
 
     const navigate = useNavigate();
     const { id } = useParams();
