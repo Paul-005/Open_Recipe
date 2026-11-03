@@ -10,6 +10,7 @@ import EditRecipePage from "../pages/Recipes/EditRecipePage";
 import Recipes from "../pages/Recipes/RecipeListPage";
 import OneRecipe from "../pages/Recipes/RecipeDetailsPage";
 import ProfilePage from "../pages/Auth/Profile";
+import MyForksPage from "../pages/Recipes/MyForksPage";
 
 export default function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ export default function AppRoutes() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/recipe/:id" element={<OneRecipe />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/my-forks" element={<MyForksPage />} />
       </Routes>
   );
 }

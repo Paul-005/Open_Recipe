@@ -122,7 +122,6 @@ exports.fetchRecipeById = async (req, res) => {
     try {
         const recipeId = req.params.id;
 
-
         // Use aggregation with $match and $lookup for optimal performance
         const result = await RecipeModal.aggregate([
             { $match: { _id: new ObjectId(recipeId) } },
@@ -134,7 +133,30 @@ exports.fetchRecipeById = async (req, res) => {
                     as: "comments"
                 }
             },
-
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user_id",
+                    foreignField: "_id",
+                    as: "author"
+                }
+            },
+            {
+                $lookup: {
+                    from: "recipes",
+                    localField: "sourceRecipeId",
+                    foreignField: "_id",
+                    as: "sourceRecipe"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "sourceRecipe.user_id",
+                    foreignField: "_id",
+                    as: "sourceAuthor"
+                }
+            }
         ]);
 
         if (!result || result.length === 0) {
@@ -144,27 +166,102 @@ exports.fetchRecipeById = async (req, res) => {
         const recipe = result[0];
         recipe.RecipeContent = formatRecipeContent(recipe.RecipeContent);
 
+        // Populate author email/name
+        if (recipe.author && recipe.author.length > 0) {
+            recipe.email = recipe.author[0].email;
+            recipe.authorName = recipe.author[0].name;
+        }
+
+        // Populate source recipe attribution if this is a fork
+        if (recipe.sourceRecipe && recipe.sourceRecipe.length > 0) {
+            recipe.sourceRecipeInfo = {
+                _id: recipe.sourceRecipe[0]._id,
+                recipeName: recipe.sourceRecipe[0].recipeName,
+                authorName: recipe.sourceAuthor?.[0]?.name || "Anonymous",
+                authorEmail: recipe.sourceAuthor?.[0]?.email || "",
+                revision: recipe.sourceRecipe[0].revision || 1
+            };
+        }
+
+        // Privacy check: If recipe is private, only the owner can view it
+        if (recipe.visibility === "private") {
+            const token = req.headers.token;
+            let currentUserId = null;
+            if (token) {
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    currentUserId = decoded.id;
+                } catch {
+                    // Invalid token
+                }
+            }
+            if (!currentUserId || currentUserId !== recipe.user_id?.toString()) {
+                return res.status(403).json({ error: "This recipe variation is private." });
+            }
+        }
+
         res.status(200).json(recipe);
     } catch (error) {
         console.error("Error fetching recipe by id:", error);
         res.status(500).json({ error: "Internal server error" });
     }
-
-
-
-
 };
 
-// Fetch all recipes
+// Fetch all public recipes
 exports.fetchAllRecipes = async (req, res) => {
     try {
-        const recipes = await RecipeModal.find({}, {
-            _id: 1, recipeName: 1, RecipeContent: 1,
-            thumbnail: 1,
-        }).lean();
+        const recipes = await RecipeModal.aggregate([
+            { $match: { visibility: { $ne: "private" } } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user_id",
+                    foreignField: "_id",
+                    as: "author"
+                }
+            },
+            {
+                $lookup: {
+                    from: "recipes",
+                    localField: "sourceRecipeId",
+                    foreignField: "_id",
+                    as: "sourceRecipe"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "sourceRecipe.user_id",
+                    foreignField: "_id",
+                    as: "sourceAuthor"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    recipeName: 1,
+                    RecipeContent: 1,
+                    thumbnail: 1,
+                    cookingTime: 1,
+                    servings: 1,
+                    variationTitle: 1,
+                    variationDescription: 1,
+                    sourceRecipeId: 1,
+                    rootRecipeId: 1,
+                    revision: 1,
+                    user_id: 1,
+                    authorName: { $arrayElemAt: ["$author.name", 0] },
+                    authorEmail: { $arrayElemAt: ["$author.email", 0] },
+                    originalRecipeName: { $arrayElemAt: ["$sourceRecipe.recipeName", 0] },
+                    sourceAuthorName: { $arrayElemAt: ["$sourceAuthor.name", 0] }
+                }
+            },
+            { $sort: { _id: -1 } }
+        ]);
 
         const formattedRecipes = recipes.map((recipe) => ({
             ...recipe,
+            isFork: Boolean(recipe.sourceRecipeId),
             RecipeContent: formatRecipeContent(recipe.RecipeContent),
         }));
 
@@ -195,11 +292,9 @@ exports.deleteRecipe = async (req, res) => {
             return res.status(404).json({ error: "Recipe not found" });
         }
 
-
         if (recipe.user_id.toString() !== id) {
             return res.status(403).json({ error: "You don't have permission to delete this recipe" });
         }
-
 
         RecipeModal.findByIdAndDelete(recipe_id).then(() => {
             return res.status(200).json({ message: "Recipe deleted successfully" });
@@ -211,27 +306,32 @@ exports.deleteRecipe = async (req, res) => {
     }
 };
 
-
 exports.editRecipe = async (req, res) => {
     const recipe_id = req.params.id;
     const recipe = await RecipeModal.findById(recipe_id);
-
-    const token = req.headers.token;
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log(recipe.user_id.toString(),);
-
-    if (recipe.user_id.toString() !== id) {
-        return res.status(403).json({ error: "You don't have permission to edit this recipe" });
-    }
-
 
     if (!recipe) {
         return res.status(404).json({ error: "Recipe not found" });
     }
 
-    const { recipeName, ingredients, RecipeContent, thumbnail, cookingTime, servings } = req.body;
+    const token = req.headers.token;
+    const { id } = jwt.verify(token, process.env.JWT_SECRET);
 
+    if (recipe.user_id.toString() !== id) {
+        return res.status(403).json({ error: "You don't have permission to edit this recipe" });
+    }
+
+    const {
+        recipeName,
+        ingredients,
+        RecipeContent,
+        thumbnail,
+        cookingTime,
+        servings,
+        variationTitle,
+        variationDescription,
+        visibility
+    } = req.body;
 
     // make an object with the changed variables
     const changedVariables = {};
@@ -256,13 +356,192 @@ exports.editRecipe = async (req, res) => {
     if (servings != null) {
         changedVariables.servings = servings;
     }
+    if (variationTitle !== undefined) {
+        changedVariables.variationTitle = variationTitle;
+    }
+    if (variationDescription !== undefined) {
+        changedVariables.variationDescription = variationDescription;
+    }
+    if (visibility !== undefined) {
+        changedVariables.visibility = visibility;
+        if (visibility === "public" && !recipe.publishedAt) {
+            changedVariables.publishedAt = new Date();
+        }
+    }
 
     await RecipeModal.findByIdAndUpdate(recipe_id, changedVariables, { runValidators: true }).then(() => {
         res.status(200).json({ message: "Recipe updated successfully" });
     }).catch((error) => {
         res.status(500).json({ error: error.message });
     });
-}
+};
+
+// Fork an existing recipe
+exports.forkRecipe = async (req, res) => {
+    try {
+        const token = req.headers.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const user_id = decoded.id;
+        const recipeId = req.params.id;
+
+        const sourceRecipe = await RecipeModal.findById(recipeId);
+        if (!sourceRecipe) {
+            return res.status(404).json({ error: "Recipe not found" });
+        }
+
+        // Privacy check: Cannot fork someone else's private recipe
+        if (sourceRecipe.visibility === "private" && sourceRecipe.user_id.toString() !== user_id) {
+            return res.status(403).json({ error: "Cannot fork a private recipe." });
+        }
+
+        // For first release, rootRecipeId is the original recipe's ID
+        const rootId = sourceRecipe.rootRecipeId || sourceRecipe._id;
+
+        const forkedRecipe = new RecipeModal({
+            recipeName: `${sourceRecipe.recipeName} (Variation)`,
+            ingredients: sourceRecipe.ingredients,
+            RecipeContent: sourceRecipe.RecipeContent,
+            thumbnail: sourceRecipe.thumbnail,
+            cookingTime: sourceRecipe.cookingTime,
+            servings: sourceRecipe.servings,
+            embedding: sourceRecipe.embedding,
+            user_id: user_id,
+            sourceRecipeId: sourceRecipe._id,
+            rootRecipeId: rootId,
+            forkedFromRevision: sourceRecipe.revision || 1,
+            revision: 1,
+            variationTitle: "",
+            variationDescription: "",
+            visibility: "private", // Default to private until user publishes
+            publishedAt: null
+        });
+
+        await forkedRecipe.save();
+
+        res.status(201).json({
+            message: "Recipe forked successfully",
+            forkId: forkedRecipe._id,
+            recipe: forkedRecipe
+        });
+    } catch (error) {
+        console.error("Fork error:", error);
+        res.status(500).json({ error: error.message || "Failed to fork recipe" });
+    }
+};
+
+// Get community variations of a recipe
+exports.fetchRecipeVariations = async (req, res) => {
+    try {
+        const recipeId = req.params.id;
+
+        const variations = await RecipeModal.aggregate([
+            {
+                $match: {
+                    $or: [
+                        { rootRecipeId: new ObjectId(recipeId) },
+                        { sourceRecipeId: new ObjectId(recipeId) }
+                    ],
+                    _id: { $ne: new ObjectId(recipeId) },
+                    visibility: "public"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user_id",
+                    foreignField: "_id",
+                    as: "author"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    recipeName: 1,
+                    variationTitle: 1,
+                    variationDescription: 1,
+                    thumbnail: 1,
+                    cookingTime: 1,
+                    servings: 1,
+                    sourceRecipeId: 1,
+                    rootRecipeId: 1,
+                    revision: 1,
+                    publishedAt: 1,
+                    authorName: { $arrayElemAt: ["$author.name", 0] },
+                    authorEmail: { $arrayElemAt: ["$author.email", 0] }
+                }
+            }
+        ]);
+
+        res.status(200).json(variations);
+    } catch (error) {
+        console.error("Fetch variations error:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch variations" });
+    }
+};
+
+// Fetch user's forks
+exports.fetchUserForks = async (req, res) => {
+    try {
+        const token = req.headers.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const user_id = decoded.id;
+
+        const forks = await RecipeModal.aggregate([
+            {
+                $match: {
+                    user_id: new ObjectId(user_id),
+                    sourceRecipeId: { $ne: null }
+                }
+            },
+            {
+                $lookup: {
+                    from: "recipes",
+                    localField: "sourceRecipeId",
+                    foreignField: "_id",
+                    as: "sourceRecipe"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "sourceRecipe.user_id",
+                    foreignField: "_id",
+                    as: "sourceAuthor"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    recipeName: 1,
+                    variationTitle: 1,
+                    variationDescription: 1,
+                    thumbnail: 1,
+                    cookingTime: 1,
+                    servings: 1,
+                    visibility: 1,
+                    revision: 1,
+                    forkedFromRevision: 1,
+                    publishedAt: 1,
+                    sourceRecipeId: 1,
+                    rootRecipeId: 1,
+                    originalRecipeName: { $arrayElemAt: ["$sourceRecipe.recipeName", 0] },
+                    originalAuthorName: { $arrayElemAt: ["$sourceAuthor.name", 0] }
+                }
+            }
+        ]);
+
+        res.status(200).json(forks);
+    } catch (error) {
+        console.error("Fetch user forks error:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch user forks" });
+    }
+};
 
 exports.addComment = async (req, res) => {
     const { comment } = req.body;

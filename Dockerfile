@@ -1,5 +1,5 @@
 # ---------- Stage 1: Build frontend ----------
-FROM node:18-alpine AS frontend-build
+FROM node:22.21.1-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
@@ -11,7 +11,7 @@ RUN npm run build
 
 
 # ---------- Stage 2: Build backend ----------
-FROM node:18-alpine AS backend-build
+FROM node:22.21.1-alpine AS backend-build
 
 WORKDIR /app/backend
 
@@ -22,7 +22,7 @@ COPY server/ .
 
 
 # ---------- Stage 3: Final Image ----------
-FROM node:18-alpine
+FROM node:22.21.1-alpine
 
 WORKDIR /app
 
