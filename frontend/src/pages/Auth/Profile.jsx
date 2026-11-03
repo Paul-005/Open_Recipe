@@ -5,6 +5,8 @@ import axios from "axios";
 export default function ProfilePage() {
   const [user, setUser] = useState({});
   const [usersRecipe, setUsersRecipe] = useState([]);
+  const [userForks, setUserForks] = useState([]);
+  const [activeTab, setActiveTab] = useState("recipes");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -31,11 +33,22 @@ export default function ProfilePage() {
       } else {
         setUsersRecipe([]);
       }
-      setPending(false);
     } catch (error) {
       setError(error.message);
-      setPending(false);
       setUsersRecipe([]);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const getUserForks = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/recipes/my-forks`, {
+        headers: { token: localStorage.getItem("jwt") },
+      });
+      setUserForks(res.data || []);
+    } catch (err) {
+      console.warn("Failed to load user forks:", err.message);
     }
   };
 
@@ -55,6 +68,7 @@ export default function ProfilePage() {
     verifyUser();
     getUserInfo();
     getUsersRecipe();
+    getUserForks();
   }, []);
 
   const handleDeleteClick = (recipe) => {
@@ -87,6 +101,7 @@ export default function ProfilePage() {
       .then(() => {
         setPending(false);
         getUsersRecipe();
+        getUserForks();
       })
       .catch((err) => {
         setError(err.message);
@@ -396,10 +411,42 @@ export default function ProfilePage() {
           {/* Recipes Card */}
           <div style={recipesCardStyle}>
             <div style={cardHeaderStyle}>
-              <h2 style={cardTitleStyle}>
-                <i className="bi bi-book me-2"></i>
-                Your Recipes
-              </h2>
+              <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setActiveTab("recipes")}
+                  style={{
+                    background: activeTab === "recipes" ? "white" : "rgba(255, 255, 255, 0.2)",
+                    color: activeTab === "recipes" ? "#ea580c" : "white",
+                    border: "none",
+                    padding: "0.6rem 1.5rem",
+                    borderRadius: "2rem",
+                    fontWeight: "700",
+                    fontSize: "1.05rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <i className="bi bi-book me-2"></i>
+                  Original Recipes ({usersRecipe.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab("forks")}
+                  style={{
+                    background: activeTab === "forks" ? "white" : "rgba(255, 255, 255, 0.2)",
+                    color: activeTab === "forks" ? "#ea580c" : "white",
+                    border: "none",
+                    padding: "0.6rem 1.5rem",
+                    borderRadius: "2rem",
+                    fontWeight: "700",
+                    fontSize: "1.05rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <i className="bi bi-diagram-2 me-2"></i>
+                  My Forks ({userForks.length})
+                </button>
+              </div>
             </div>
 
             {/* Loading Spinner */}
@@ -407,96 +454,233 @@ export default function ProfilePage() {
               <div style={spinnerStyle}></div>
             )}
 
-            {/* Empty State */}
-            {usersRecipe.length === 0 && !pending && (
-              <div style={emptyStateStyle}>
-                <i className="bi bi-journal-x" style={emptyIconStyle}></i>
-                <h3 style={{ color: '#475569', marginBottom: '0.5rem' }}>No recipes yet</h3>
-                <p>Start sharing your culinary creations with the community!</p>
-                <button
-                  onClick={() => navigate("/content-editing")}
-                  style={{
-                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '0.75rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <i className="bi bi-plus-circle me-2"></i>
-                  Create Your First Recipe
-                </button>
-              </div>
-            )}
-
-            {/* Recipe List */}
-            {usersRecipe.length > 0 &&
-              usersRecipe.map((data) => (
-                <div key={data._id}>
-                  {/* Recipe Item */}
-                  <div
-                    style={recipeItemStyle}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(242, 117, 10, 0.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <div
-                      style={recipeNameStyle}
-                      onClick={() => navigate(`/recipe/${data._id}`)}
-                      onMouseEnter={(e) => {
-                        e.target.style.color = '#f2750a';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.color = '#0f172a';
+            {/* TAB: ORIGINAL RECIPES */}
+            {activeTab === "recipes" && (
+              <>
+                {usersRecipe.length === 0 && !pending && (
+                  <div style={emptyStateStyle}>
+                    <i className="bi bi-journal-x" style={emptyIconStyle}></i>
+                    <h3 style={{ color: '#475569', marginBottom: '0.5rem' }}>No recipes yet</h3>
+                    <p>Start sharing your culinary creations with the community!</p>
+                    <button
+                      onClick={() => navigate("/content-editing")}
+                      style={{
+                        background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '0.75rem',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        marginTop: '1rem',
+                        transition: 'all 0.3s ease'
                       }}
                     >
-                      <i className="bi bi-journal-text me-2"></i>
-                      {data.recipeName}
-                    </div>
-                    <div style={{ display: 'flex' }}>
-                      <button
-                        style={editButtonStyle}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/edit-recipe/${data._id}`);
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = '#e0f2fe';
-                          e.target.style.borderColor = '#bae6fd';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = '#f0f9ff';
-                          e.target.style.borderColor = '#bae6fd';
-                        }}
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </button>
-                      <button
-                        style={deleteButtonStyle}
-                        onClick={() => handleDeleteClick(data)}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = '#fee2e2';
-                          e.target.style.borderColor = '#fca5a5';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = '#fef2f2';
-                          e.target.style.borderColor = '#fecaca';
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
+                      <i className="bi bi-plus-circle me-2"></i>
+                      Create Your First Recipe
+                    </button>
                   </div>
-                </div>
-              ))}
+                )}
+
+                {usersRecipe.length > 0 &&
+                  usersRecipe.map((data) => (
+                    <div key={data._id}>
+                      {/* Recipe Item */}
+                      <div
+                        style={recipeItemStyle}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(242, 117, 10, 0.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <div
+                          style={recipeNameStyle}
+                          onClick={() => navigate(`/recipe/${data._id}`)}
+                          onMouseEnter={(e) => {
+                            e.target.style.color = '#f2750a';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.color = '#0f172a';
+                          }}
+                        >
+                          <i className="bi bi-journal-text me-2"></i>
+                          {data.recipeName}
+                        </div>
+                        <div style={{ display: 'flex' }}>
+                          <button
+                            style={editButtonStyle}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/edit-recipe/${data._id}`);
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = '#e0f2fe';
+                              e.target.style.borderColor = '#bae6fd';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = '#f0f9ff';
+                              e.target.style.borderColor = '#bae6fd';
+                            }}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            style={deleteButtonStyle}
+                            onClick={() => handleDeleteClick(data)}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = '#fee2e2';
+                              e.target.style.borderColor = '#fca5a5';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = '#fef2f2';
+                              e.target.style.borderColor = '#fecaca';
+                            }}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </>
+            )}
+
+            {/* TAB: MY FORKS */}
+            {activeTab === "forks" && (
+              <>
+                {userForks.length === 0 && !pending && (
+                  <div style={emptyStateStyle}>
+                    <i className="bi bi-diagram-2" style={emptyIconStyle}></i>
+                    <h3 style={{ color: '#475569', marginBottom: '0.5rem' }}>No recipe forks yet</h3>
+                    <p>Discover community recipes and fork them to create your own personalized variations!</p>
+                    <button
+                      onClick={() => navigate("/recipes")}
+                      style={{
+                        background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '0.75rem',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        marginTop: '1rem',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      <i className="bi bi-search me-2"></i>
+                      Explore Recipes to Fork
+                    </button>
+                  </div>
+                )}
+
+                {userForks.length > 0 &&
+                  userForks.map((data) => {
+                    const isPublic = data.visibility === "public";
+                    return (
+                      <div key={data._id}>
+                        <div
+                          style={recipeItemStyle}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(242, 117, 10, 0.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                          }}
+                        >
+                          <div style={{ flex: 1, minWidth: 0, marginRight: "1rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.25rem" }}>
+                              <span
+                                style={recipeNameStyle}
+                                onClick={() => navigate(`/recipe/${data._id}`)}
+                                onMouseEnter={(e) => {
+                                  e.target.style.color = '#f2750a';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.color = '#0f172a';
+                                }}
+                              >
+                                <i className="bi bi-diagram-2 me-2" style={{ color: "#ea580c" }}></i>
+                                {data.recipeName}
+                              </span>
+
+                              {/* Status Badge */}
+                              <span
+                                style={{
+                                  fontSize: "0.75rem",
+                                  fontWeight: "700",
+                                  padding: "0.2rem 0.65rem",
+                                  borderRadius: "1rem",
+                                  background: isPublic ? "#dcfce7" : "#fef3c7",
+                                  color: isPublic ? "#15803d" : "#b45309",
+                                  border: `1px solid ${isPublic ? "#bbf7d0" : "#fde68a"}`,
+                                }}
+                              >
+                                {isPublic ? "Published" : "Draft (Private)"}
+                              </span>
+
+                              {data.variationTitle && (
+                                <span
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    fontWeight: "600",
+                                    padding: "0.2rem 0.65rem",
+                                    borderRadius: "1rem",
+                                    background: "#fff7ed",
+                                    color: "#c2410c",
+                                    border: "1px solid #ffedd5",
+                                  }}
+                                >
+                                  {data.variationTitle}
+                                </span>
+                              )}
+                            </div>
+
+                            <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                              Forked from{" "}
+                              <span
+                                onClick={() => data.sourceRecipeId && navigate(`/recipe/${data.sourceRecipeId}`)}
+                                style={{ color: "#ea580c", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }}
+                              >
+                                {data.originalRecipeName || "Original Recipe"}
+                              </span>
+                              {data.originalAuthorName && (
+                                <span> by {data.originalAuthorName}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: "center", gap: "0.4rem" }}>
+                            <button
+                              style={{
+                                ...editButtonStyle,
+                                marginRight: 0,
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/edit-recipe/${data._id}`);
+                              }}
+                              title="Edit variation"
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                            <button
+                              style={deleteButtonStyle}
+                              onClick={() => handleDeleteClick(data)}
+                              title="Delete fork"
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
+            )}
           </div>
         </div>
 
@@ -510,12 +694,12 @@ export default function ProfilePage() {
                   Delete Recipe
                 </h5>
                 <button style={closeButtonStyle} onClick={cancelDelete}>
-                  ×
+                  &times;
                 </button>
               </div>
               <div style={modalBodyStyle}>
                 <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '1rem' }}>
-                  Are you sure you want to delete <strong>"{recipeToDelete?.recipeName}"</strong>?
+                  Are you sure you want to delete <strong>&quot;{recipeToDelete?.recipeName}&quot;</strong>?
                 </p>
                 <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>
                   This action cannot be undone.

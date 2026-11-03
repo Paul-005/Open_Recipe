@@ -21,6 +21,14 @@ export default function OneRecipe() {
   const [aiError, setAiError] = useState("");
   const aiSectionRef = useRef(null);
 
+  // Fork & Variation State
+  const [forkLoading, setForkLoading] = useState(false);
+  const [forkError, setForkError] = useState("");
+  const [forkSuccess, setForkSuccess] = useState("");
+  const [variations, setVariations] = useState([]);
+  const [variationsLoading, setVariationsLoading] = useState(false);
+  const [variationsError, setVariationsError] = useState("");
+
   const scrollToAI = () => {
     aiSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -28,9 +36,13 @@ export default function OneRecipe() {
   useEffect(() => {
     verifyUser();
     getOneRecipe();
-  }, []);
+    fetchVariations(id);
+    setForkError("");
+    setForkSuccess("");
+  }, [id]);
 
   const getOneRecipe = () => {
+    setLoading(true);
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/recipes/${id}`, {
         headers: {
@@ -44,9 +56,63 @@ export default function OneRecipe() {
         setError("");
       })
       .catch((err) => {
-        setError(err.message);
+        setError(err.response?.data?.error || err.message);
         setLoading(false);
       });
+  };
+
+  const fetchVariations = (recipeId) => {
+    setVariationsLoading(true);
+    setVariationsError("");
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/recipes/${recipeId}/variations`)
+      .then((res) => {
+        setVariations(res.data || []);
+        setVariationsLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Failed to load variations:", err);
+        setVariationsError("Failed to load community variations.");
+        setVariationsLoading(false);
+      });
+  };
+
+  const handleForkRecipe = async (targetId = id) => {
+    if (!localStorage.getItem("jwt")) {
+      navigate("/login");
+      return;
+    }
+
+    if (forkLoading) return; // Prevent duplicate submissions while in progress
+
+    setForkLoading(true);
+    setForkError("");
+    setForkSuccess("");
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/recipes/${targetId}/fork`,
+        {},
+        {
+          headers: {
+            token: localStorage.getItem("jwt"),
+          },
+        }
+      );
+
+      setForkSuccess("Recipe forked successfully! Redirecting to your variation editor...");
+      const newForkId = response.data.forkId;
+      setTimeout(() => {
+        navigate(`/edit-recipe/${newForkId}`);
+      }, 600);
+    } catch (err) {
+      setForkError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fork recipe. Please try again."
+      );
+      setForkLoading(false);
+    }
   };
 
   const getOneRecipeComment = () => {
@@ -120,11 +186,12 @@ export default function OneRecipe() {
     padding: '0.75rem 1.5rem',
     borderRadius: '0.75rem',
     fontSize: '1rem',
-    fontWeight: '500',
+    fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     backdropFilter: 'blur(10px)',
-    marginBottom: '2rem'
+    display: 'inline-flex',
+    alignItems: 'center'
   };
 
   const editButtonStyle = {
@@ -134,12 +201,28 @@ export default function OneRecipe() {
     padding: '0.75rem 1.5rem',
     borderRadius: '0.75rem',
     fontSize: '1rem',
-    fontWeight: '500',
+    fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     backdropFilter: 'blur(10px)',
-    marginBottom: '2rem',
-    marginLeft: '1rem'
+    display: 'inline-flex',
+    alignItems: 'center'
+  };
+
+  const forkButtonStyle = {
+    background: '#ffffff',
+    color: '#ea580c',
+    border: 'none',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontSize: '1rem',
+    fontWeight: '700',
+    cursor: forkLoading ? 'not-allowed' : 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    opacity: forkLoading ? 0.7 : 1,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
   };
 
   const titleStyle = {
@@ -417,21 +500,43 @@ export default function OneRecipe() {
         .ai-response-container li {
           margin-bottom: 0.25rem;
         }
+
+        .variations-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1.25rem;
+          margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          .variations-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        .variation-card {
+          transition: all 0.25s ease;
+        }
+
+        .variation-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px rgba(242, 117, 10, 0.12) !important;
+        }
       `}</style>
 
       <div style={containerStyle}>
         {/* Hero Section */}
         <section style={heroStyle}>
           <div className="container">
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem' }}>
               <button
                 style={backButtonStyle}
                 onClick={() => navigate(-1)}
                 onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
                 }}
               >
                 <i className="bi bi-arrow-left me-2"></i>
@@ -444,10 +549,10 @@ export default function OneRecipe() {
                   style={editButtonStyle}
                   onClick={() => navigate(`/edit-recipe/${id}`)}
                   onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
                   }}
                 >
                   <i className="bi bi-pencil me-2"></i>
@@ -455,15 +560,169 @@ export default function OneRecipe() {
                 </button>
               )}
 
+              {/* Fork this recipe button - works for others' recipes and personal variations */}
+              {!loading && recipeData.recipeName && (
+                <button
+                  style={forkButtonStyle}
+                  onClick={() => handleForkRecipe(id)}
+                  disabled={forkLoading}
+                  title={
+                    recipeData.email === JSON.parse(localStorage.getItem("user"))?.email
+                      ? "Create another variation of your recipe"
+                      : `Fork ${recipeData.authorName || 'this author'}'s recipe to your kitchen to customize it`
+                  }
+                  onMouseEnter={(e) => {
+                    if (!forkLoading) {
+                      e.currentTarget.style.background = '#fef3c7';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!forkLoading) {
+                      e.currentTarget.style.background = '#ffffff';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
+                  }}
+                >
+                  {forkLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Forking recipe...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-diagram-2 me-2"></i>
+                      {recipeData.email === JSON.parse(localStorage.getItem("user"))?.email
+                        ? "Fork to New Variation"
+                        : "Fork this Recipe"}
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {!loading && recipeData.recipeName && (
               <>
+                {/* Distinct Badges for Original vs Community Variation */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                  {recipeData.sourceRecipeId ? (
+                    <span style={{
+                      background: 'rgba(255, 255, 255, 0.25)',
+                      color: 'white',
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '2rem',
+                      fontSize: '0.85rem',
+                      fontWeight: '700',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
+                      letterSpacing: '0.02em'
+                    }}>
+                      <i className="bi bi-diagram-2"></i>
+                      Community Variation
+                    </span>
+                  ) : (
+                    <span style={{
+                      background: 'rgba(255, 255, 255, 0.25)',
+                      color: 'white',
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '2rem',
+                      fontSize: '0.85rem',
+                      fontWeight: '700',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
+                      letterSpacing: '0.02em'
+                    }}>
+                      <i className="bi bi-award-fill"></i>
+                      Original Recipe
+                    </span>
+                  )}
+
+                  {recipeData.visibility === "private" && (
+                    <span style={{
+                      background: '#fee2e2',
+                      color: '#991b1b',
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '2rem',
+                      fontSize: '0.85rem',
+                      fontWeight: '700',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem'
+                    }}>
+                      <i className="bi bi-lock-fill"></i>
+                      Private Draft
+                    </span>
+                  )}
+                </div>
+
                 <h1 style={titleStyle}>{recipeData.recipeName}</h1>
+
+                {recipeData.variationTitle && (
+                  <div style={{
+                    marginBottom: '1rem',
+                    display: 'inline-block',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    color: '#c2410c',
+                    padding: '0.4rem 1rem',
+                    borderRadius: '0.75rem',
+                    fontWeight: '700',
+                    fontSize: '1.05rem',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}>
+                    <i className="bi bi-stars me-2" style={{ color: '#f2750a' }}></i>
+                    Variation: &ldquo;{recipeData.variationTitle}&rdquo;
+                  </div>
+                )}
+
+                {/* Attribution banner on fork detail pages */}
+                {recipeData.sourceRecipeId && (
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.35)',
+                    borderRadius: '1rem',
+                    padding: '0.9rem 1.25rem',
+                    marginBottom: '1.25rem',
+                    maxWidth: '850px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '1.02rem', color: 'white' }}>
+                      <i className="bi bi-diagram-2" style={{ fontSize: '1.15rem' }}></i>
+                      <span>
+                        Forked from{" "}
+                        <button
+                          onClick={() => navigate(`/recipe/${recipeData.sourceRecipeInfo?._id || recipeData.sourceRecipeId}`)}
+                          style={{
+                            background: 'white',
+                            color: '#ea580c',
+                            border: 'none',
+                            padding: '0.2rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            margin: '0 0.25rem',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          {recipeData.sourceRecipeInfo?.recipeName || "Original Recipe"}
+                        </button>{" "}
+                        by <strong>{recipeData.sourceRecipeInfo?.authorName || recipeData.sourceRecipeInfo?.authorEmail || "Original Author"}</strong>
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', opacity: 0.92, color: '#fef3c7', marginTop: '0.35rem' }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      Independent community variation — changes made to this copy do not modify or require approval from the original recipe.
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
                   <div style={authorStyle}>
                     <i className="bi bi-person-circle"></i>
-                    Created by {recipeData.email}
+                    Created by {recipeData.authorName || recipeData.email}
                   </div>
                   {recipeData.cookingTime && (
                     <div style={authorStyle}>
@@ -484,6 +743,54 @@ export default function OneRecipe() {
         </section>
 
         <div className="container">
+          {/* Fork Status Alerts */}
+          {forkSuccess && (
+            <div style={{
+              background: '#ecfdf5',
+              color: '#065f46',
+              border: '1px solid #a7f3d0',
+              padding: '1rem 1.5rem',
+              borderRadius: '1rem',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              fontWeight: '500',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+            }}>
+              <i className="bi bi-check-circle-fill" style={{ fontSize: '1.25rem', color: '#10b981' }}></i>
+              <div>{forkSuccess}</div>
+            </div>
+          )}
+
+          {forkError && (
+            <div style={{
+              background: '#fef2f2',
+              color: '#991b1b',
+              border: '1px solid #fecaca',
+              padding: '1rem 1.5rem',
+              borderRadius: '1rem',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              fontWeight: '500'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: '1.25rem', color: '#ef4444' }}></i>
+                <div>{forkError}</div>
+              </div>
+              <button
+                onClick={() => setForkError("")}
+                style={{ background: 'none', border: 'none', color: '#991b1b', cursor: 'pointer', fontSize: '1.2rem' }}
+                aria-label="Close error"
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+          )}
+
           {/* Error Alert */}
           {error && (
             <div style={alertStyle}>
@@ -512,6 +819,25 @@ export default function OneRecipe() {
                       alt={recipeData.recipeName}
                       style={imageStyle}
                     />
+                  </div>
+                )}
+
+                {/* Variation Description Banner */}
+                {recipeData.variationDescription && (
+                  <div style={contentCardStyle}>
+                    <div style={{
+                      background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+                      padding: '1.75rem 2rem',
+                      borderLeft: '5px solid #f2750a'
+                    }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#9a3412', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <i className="bi bi-journal-text"></i>
+                        About This Community Variation
+                      </h3>
+                      <p style={{ color: '#7c2d12', margin: 0, fontSize: '1.05rem', lineHeight: '1.6' }}>
+                        {recipeData.variationDescription}
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -657,6 +983,286 @@ export default function OneRecipe() {
                         <div className="ai-response-container" style={{ lineHeight: '1.5', color: '#334155' }}>
                           <ReactMarkdown>{aiResponse}</ReactMarkdown>
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Community Variations Section */}
+                <div style={contentCardStyle}>
+                  <div style={{ padding: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <div>
+                        <h2 style={{ ...sectionTitleStyle, marginBottom: '0.35rem' }}>
+                          <i className="bi bi-diagram-2" style={{ color: '#f2750a' }}></i>
+                          Community Variations ({variations.length})
+                        </h2>
+                        <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>
+                          Independent recipe twists created by fellow home chefs. Each variation is standalone and does not change the original recipe.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleForkRecipe}
+                        disabled={forkLoading}
+                        style={{
+                          background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0.65rem 1.25rem',
+                          borderRadius: '0.75rem',
+                          fontSize: '0.95rem',
+                          fontWeight: '600',
+                          cursor: forkLoading ? 'not-allowed' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 4px 10px rgba(242, 117, 10, 0.25)',
+                          transition: 'all 0.2s ease',
+                          opacity: forkLoading ? 0.7 : 1
+                        }}
+                      >
+                        <i className="bi bi-diagram-2"></i>
+                        Fork This Recipe
+                      </button>
+                    </div>
+
+                    {variationsLoading ? (
+                      <div style={{ textAlign: 'center', padding: '2.5rem 0' }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          border: '4px solid rgba(242, 117, 10, 0.2)',
+                          borderTop: '4px solid #f2750a',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite',
+                          margin: '0 auto 1rem'
+                        }}></div>
+                        <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Loading community variations...</p>
+                      </div>
+                    ) : variationsError ? (
+                      <div style={{ ...alertStyle, background: '#fee2e2', color: '#dc2626' }}>
+                        <i className="bi bi-exclamation-triangle"></i>
+                        {variationsError}
+                      </div>
+                    ) : variations.length === 0 ? (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '3rem 1.5rem',
+                        background: '#fffbf5',
+                        borderRadius: '1.25rem',
+                        border: '1.5px dashed #fed7aa'
+                      }}>
+                        <div style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '50%',
+                          background: '#ffedd5',
+                          color: '#ea580c',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.75rem',
+                          marginBottom: '1rem'
+                        }}>
+                          <i className="bi bi-diagram-2"></i>
+                        </div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>
+                          No community variations yet
+                        </h3>
+                        <p style={{ color: '#64748b', maxWidth: '450px', margin: '0 auto 1.5rem', fontSize: '0.95rem' }}>
+                          Have an interesting twist, dietary adaptation, or ingredient substitution? Fork this recipe to create and publish your own variation!
+                        </p>
+                        <button
+                          onClick={handleForkRecipe}
+                          disabled={forkLoading}
+                          style={{
+                            background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '0.75rem 1.5rem',
+                            borderRadius: '0.75rem',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            cursor: forkLoading ? 'not-allowed' : 'pointer',
+                            boxShadow: '0 4px 12px rgba(242, 117, 10, 0.3)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                          }}
+                        >
+                          <i className="bi bi-diagram-2"></i>
+                          Be the first to fork this recipe
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="variations-grid">
+                        {variations.map((v) => (
+                          <div
+                            key={v._id}
+                            style={{
+                              background: '#ffffff',
+                              borderRadius: '1.25rem',
+                              border: '1px solid #fed7aa',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                            className="variation-card"
+                          >
+                            {/* Thumbnail */}
+                            <div style={{ position: 'relative', height: '160px', background: '#fff7ed', overflow: 'hidden' }}>
+                              {v.thumbnail ? (
+                                <img
+                                  src={v.thumbnail}
+                                  alt={v.recipeName}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fdba74', fontSize: '2.5rem' }}>
+                                  <i className="bi bi-egg-fried"></i>
+                                </div>
+                              )}
+                              <span style={{
+                                position: 'absolute',
+                                top: '0.75rem',
+                                left: '0.75rem',
+                                background: 'rgba(234, 88, 12, 0.9)',
+                                color: 'white',
+                                padding: '0.25rem 0.65rem',
+                                borderRadius: '1rem',
+                                fontSize: '0.75rem',
+                                fontWeight: '700',
+                                backdropFilter: 'blur(4px)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                              }}>
+                                <i className="bi bi-diagram-2"></i>
+                                Variation
+                              </span>
+                            </div>
+
+                            {/* Content */}
+                            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <h4 style={{
+                                fontSize: '1.15rem',
+                                fontWeight: 700,
+                                color: '#1e293b',
+                                marginBottom: '0.25rem',
+                                lineHeight: 1.3
+                              }}>
+                                {v.variationTitle || v.recipeName}
+                              </h4>
+                              {v.variationTitle && (
+                                <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 500 }}>
+                                  Based on: {v.recipeName}
+                                </div>
+                              )}
+
+                              <p style={{
+                                fontSize: '0.9rem',
+                                color: '#475569',
+                                margin: '0.25rem 0 1rem',
+                                lineHeight: 1.5,
+                                flex: 1,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                              }}>
+                                {v.variationDescription || "A community adapted version of this recipe."}
+                              </p>
+
+                              {/* Author & cooking info */}
+                              <div style={{
+                                borderTop: '1px solid #f1f5f9',
+                                paddingTop: '0.75rem',
+                                marginBottom: '1rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                fontSize: '0.85rem',
+                                color: '#64748b'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
+                                  <i className="bi bi-person-circle" style={{ color: '#ea580c' }}></i>
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {v.authorName || v.authorEmail || "Home Chef"}
+                                  </span>
+                                </div>
+                                {v.cookingTime && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0, fontWeight: 500 }}>
+                                    <i className="bi bi-clock"></i>
+                                    {v.cookingTime}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                <button
+                                  onClick={() => {
+                                    navigate(`/recipe/${v._id}`);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    background: '#fff7ed',
+                                    color: '#ea580c',
+                                    border: '1.5px solid #fed7aa',
+                                    padding: '0.6rem 0.85rem',
+                                    borderRadius: '0.75rem',
+                                    fontWeight: '600',
+                                    fontSize: '0.88rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.35rem'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#ea580c';
+                                    e.currentTarget.style.color = '#ffffff';
+                                    e.currentTarget.style.borderColor = '#ea580c';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fff7ed';
+                                    e.currentTarget.style.color = '#ea580c';
+                                    e.currentTarget.style.borderColor = '#fed7aa';
+                                  }}
+                                >
+                                  View
+                                  <i className="bi bi-arrow-right"></i>
+                                </button>
+                                <button
+                                  onClick={() => handleForkRecipe(v._id)}
+                                  disabled={forkLoading}
+                                  title={`Fork this variation by ${v.authorName || 'chef'} to make your own version`}
+                                  style={{
+                                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '0.6rem 0.9rem',
+                                    borderRadius: '0.75rem',
+                                    fontWeight: '600',
+                                    fontSize: '0.88rem',
+                                    cursor: forkLoading ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.35rem',
+                                    boxShadow: '0 2px 6px rgba(242, 117, 10, 0.25)'
+                                  }}
+                                >
+                                  <i className="bi bi-diagram-2"></i>
+                                  Fork
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

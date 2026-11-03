@@ -14,6 +14,15 @@ export default function EditRecipePage() {
     const [error, setError] = useState("");
     const [pending, setPending] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Fork and variation metadata
+    const [isFork, setIsFork] = useState(false);
+    const [variationTitle, setVariationTitle] = useState("");
+    const [variationDescription, setVariationDescription] = useState("");
+    const [visibility, setVisibility] = useState("public");
+    const [sourceRecipeInfo, setSourceRecipeInfo] = useState(null);
+    const [isOwner, setIsOwner] = useState(true);
+
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -53,9 +62,34 @@ export default function EditRecipePage() {
             setCookingTime(rawTime.replace(/[^0-9]/g, ""));
             setServings(recipe.servings || "");
             setImagePreviewUrl(recipe.thumbnail || null);
+
+            // Fork metadata
+            const forkDetected = Boolean(recipe.sourceRecipeId);
+            setIsFork(forkDetected);
+            setVariationTitle(recipe.variationTitle || "");
+            setVariationDescription(recipe.variationDescription || "");
+            setVisibility(recipe.visibility || (forkDetected ? "private" : "public"));
+            setSourceRecipeInfo(recipe.sourceRecipeInfo || null);
+
+            // Verify ownership
+            const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+            const currentUserId = localStorage.getItem("userId") || currentUser.id || currentUser._id;
+            const recipeOwnerId = recipe.user_id?._id || recipe.user_id;
+
+            if (currentUserId && recipeOwnerId) {
+                if (currentUserId.toString() !== recipeOwnerId.toString()) {
+                    setIsOwner(false);
+                }
+            }
+
             setLoading(false);
         } catch (error) {
-            setError("Failed to fetch recipe: " + error.message);
+            if (error.response?.status === 403) {
+                setIsOwner(false);
+                setError("You don't have permission to edit this recipe.");
+            } else {
+                setError("Failed to fetch recipe: " + (error.response?.data?.error || error.message));
+            }
             setLoading(false);
         }
     };
@@ -85,7 +119,7 @@ export default function EditRecipePage() {
         }
     };
 
-    const getChangedFields = () => {
+    const getChangedFields = (targetVisibility) => {
         const changes = {};
 
         if (recipeName !== originalRecipe.recipeName) {
@@ -108,10 +142,23 @@ export default function EditRecipePage() {
             changes.servings = Number(servings);
         }
 
+        if (isFork) {
+            if (variationTitle !== (originalRecipe.variationTitle || "")) {
+                changes.variationTitle = variationTitle;
+            }
+            if (variationDescription !== (originalRecipe.variationDescription || "")) {
+                changes.variationDescription = variationDescription;
+            }
+            const desiredVisibility = targetVisibility || visibility;
+            if (desiredVisibility !== originalRecipe.visibility) {
+                changes.visibility = desiredVisibility;
+            }
+        }
+
         return changes;
     };
 
-    const updateRecipe = async () => {
+    const updateRecipe = async (targetVisibility) => {
         setError("");
 
         if (!recipeName || !Incredients || !RecipeContent) {
@@ -119,11 +166,16 @@ export default function EditRecipePage() {
             return;
         }
 
-        const changedFields = getChangedFields();
+        const effectiveVisibility = targetVisibility || visibility;
+        const changedFields = getChangedFields(effectiveVisibility);
 
-        if (Object.keys(changedFields).length === 0 && !FoodImg) {
+        if (Object.keys(changedFields).length === 0 && !FoodImg && !targetVisibility) {
             setError("No changes detected. Please make some changes before updating.");
             return;
+        }
+
+        if (targetVisibility && changedFields.visibility !== targetVisibility) {
+            changedFields.visibility = targetVisibility;
         }
 
         setPending(true);
@@ -158,7 +210,7 @@ export default function EditRecipePage() {
 
         } catch (e) {
             console.error("Error updating recipe:", e);
-            setError(e.message || "An error occurred while updating the recipe.");
+            setError(e.response?.data?.error || e.message || "Failed to update recipe.");
         } finally {
             setPending(false);
         }
@@ -367,6 +419,69 @@ export default function EditRecipePage() {
         );
     }
 
+    if (!isOwner) {
+        return (
+            <div style={containerStyle}>
+                <div className="container">
+                    <div style={{ ...formContainerStyle, textAlign: 'center', padding: '3.5rem 2rem' }}>
+                        <div style={{
+                            width: '70px',
+                            height: '70px',
+                            borderRadius: '50%',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '2rem',
+                            margin: '0 auto 1.5rem auto'
+                        }}>
+                            <i className="bi bi-shield-lock"></i>
+                        </div>
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#0f172a', marginBottom: '1rem' }}>
+                            Permission Denied
+                        </h2>
+                        <p style={{ color: '#64748b', maxWidth: '520px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
+                            You do not have permission to edit this recipe. You can only modify recipes or variations that you own.
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => navigate(`/recipe/${id}`)}
+                                style={{
+                                    background: 'white',
+                                    color: '#0f172a',
+                                    border: '1px solid #cbd5e1',
+                                    padding: '0.75rem 1.5rem',
+                                    borderRadius: '0.75rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <i className="bi bi-arrow-left me-2"></i>
+                                Back to Recipe
+                            </button>
+                            <button
+                                onClick={() => navigate('/recipes')}
+                                style={{
+                                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '0.75rem 1.5rem',
+                                    borderRadius: '0.75rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <i className="bi bi-book me-2"></i>
+                                Browse Recipes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <style>{`
@@ -386,11 +501,53 @@ export default function EditRecipePage() {
                                 alt="Recipe Logo"
                                 style={logoStyle}
                             />
-                            <h1 style={titleStyle}>Edit Recipe</h1>
+                            <h1 style={titleStyle}>
+                                {isFork ? 'Edit Community Variation' : 'Edit Recipe'}
+                            </h1>
                             <p style={subtitleStyle}>
-                                Update your delicious recipe and share it with the community
+                                {isFork
+                                    ? 'Customize your personal copy and publish variations for other home cooks'
+                                    : 'Update your delicious recipe and share it with the community'}
                             </p>
                         </div>
+
+                        {/* Fork Notice Banner */}
+                        {isFork && (
+                            <div style={{
+                                background: 'linear-gradient(135deg, #fff7ed, #ffedd5)',
+                                border: '1.5px solid #fed7aa',
+                                borderRadius: '1.25rem',
+                                padding: '1.25rem 1.5rem',
+                                marginBottom: '2rem',
+                                display: 'flex',
+                                gap: '1rem',
+                                alignItems: 'flex-start'
+                            }}>
+                                <div style={{
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '50%',
+                                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.1rem',
+                                    flexShrink: 0
+                                }}>
+                                    <i className="bi bi-diagram-2"></i>
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '700', color: '#9a3412', fontSize: '1.05rem' }}>
+                                        Editing Your Personal Variation
+                                    </div>
+                                    <div style={{ color: '#7c2d12', fontSize: '0.9rem', lineHeight: '1.5', marginTop: '0.2rem' }}>
+                                        Forked from <strong>{sourceRecipeInfo?.recipeName || 'the original recipe'}</strong>.
+                                        Any changes saved here belong solely to your personal copy and will never alter or merge into the original recipe.
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Error Alert */}
                         {error && (
@@ -402,6 +559,28 @@ export default function EditRecipePage() {
 
                         {/* Edit Form */}
                         <form onSubmit={(e) => { e.preventDefault(); updateRecipe(); }}>
+                            {/* Variation Title (Forks only) */}
+                            {isFork && (
+                                <div style={inputGroupStyle}>
+                                    <label style={labelStyle}>
+                                        <i className="bi bi-tag me-2" style={{ color: '#f2750a' }}></i>
+                                        Variation Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        style={inputStyle}
+                                        placeholder="e.g. Gluten-Free Crust, Extra Spicy Version, Vegan Twist"
+                                        value={variationTitle}
+                                        onChange={(e) => setVariationTitle(e.target.value)}
+                                        onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                                        onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                                    />
+                                    <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.4rem' }}>
+                                        Give your variation a short title highlighting what you customized.
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Recipe Name */}
                             <div style={inputGroupStyle}>
                                 <label style={labelStyle}>
@@ -425,6 +604,24 @@ export default function EditRecipePage() {
                                     required
                                 />
                             </div>
+
+                            {/* Variation Description / Notes (Forks only) */}
+                            {isFork && (
+                                <div style={inputGroupStyle}>
+                                    <label style={labelStyle}>
+                                        <i className="bi bi-card-text me-2" style={{ color: '#f2750a' }}></i>
+                                        Variation Description & Notes
+                                    </label>
+                                    <textarea
+                                        style={textareaStyle}
+                                        placeholder="Explain what you tweaked (e.g. substituted ingredients, adjusted baking temperature, spicy twist)..."
+                                        value={variationDescription}
+                                        onChange={(e) => setVariationDescription(e.target.value)}
+                                        onFocus={(e) => { Object.assign(e.target.style, inputFocusStyle); }}
+                                        onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#fafafa'; e.target.style.boxShadow = 'none'; }}
+                                    />
+                                </div>
+                            )}
 
                             {/* Food Image */}
                             <div style={inputGroupStyle}>
@@ -570,27 +767,162 @@ export default function EditRecipePage() {
                                 />
                             </div>
 
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                style={buttonStyle}
-                                disabled={pending}
-                                onMouseEnter={(e) => {
-                                    if (!pending) {
-                                        Object.assign(e.target.style, buttonHoverStyle);
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!pending) {
-                                        e.target.style.transform = 'translateY(0)';
-                                        e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
-                                    }
-                                }}
-                            >
-                                {pending && <div style={spinnerStyle}></div>}
-                                <i className={`bi ${pending ? 'bi-hourglass-split' : 'bi-check-circle'} me-2`}></i>
-                                {pending ? 'Updating Recipe...' : 'Update Recipe'}
-                            </button>
+                            {/* Visibility / Publishing Controls for Forks */}
+                            {isFork && (
+                                <div style={{
+                                    background: '#f8fafc',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '1.25rem',
+                                    padding: '1.5rem',
+                                    marginBottom: '2rem'
+                                }}>
+                                    <label style={{ ...labelStyle, marginBottom: '0.75rem' }}>
+                                        <i className="bi bi-globe me-2" style={{ color: '#f2750a' }}></i>
+                                        Visibility & Publication Status
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                        <label style={{
+                                            flex: 1,
+                                            minWidth: '220px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            padding: '1rem',
+                                            borderRadius: '0.85rem',
+                                            border: visibility === 'private' ? '2px solid #f2750a' : '1px solid #e2e8f0',
+                                            background: visibility === 'private' ? '#fff7ed' : 'white',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                        }}>
+                                            <input
+                                                type="radio"
+                                                name="visibility"
+                                                value="private"
+                                                checked={visibility === 'private'}
+                                                onChange={() => setVisibility('private')}
+                                            />
+                                            <div>
+                                                <div style={{ fontWeight: '600', color: '#0f172a' }}>
+                                                    <i className="bi bi-lock-fill me-1" style={{ color: '#d97706' }}></i>
+                                                    Private Draft
+                                                </div>
+                                                <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                                    Only you can view and edit this fork under My Forks.
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <label style={{
+                                            flex: 1,
+                                            minWidth: '220px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            padding: '1rem',
+                                            borderRadius: '0.85rem',
+                                            border: visibility === 'public' ? '2px solid #f2750a' : '1px solid #e2e8f0',
+                                            background: visibility === 'public' ? '#fff7ed' : 'white',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                        }}>
+                                            <input
+                                                type="radio"
+                                                name="visibility"
+                                                value="public"
+                                                checked={visibility === 'public'}
+                                                onChange={() => setVisibility('public')}
+                                            />
+                                            <div>
+                                                <div style={{ fontWeight: '600', color: '#0f172a' }}>
+                                                    <i className="bi bi-globe me-1" style={{ color: '#16a34a' }}></i>
+                                                    Public Variation
+                                                </div>
+                                                <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                                    Visible to the community under Community Variations.
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Submit Buttons */}
+                            {isFork ? (
+                                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                    <button
+                                        type="button"
+                                        disabled={pending}
+                                        onClick={() => updateRecipe('private')}
+                                        style={{
+                                            flex: 1,
+                                            minWidth: '200px',
+                                            background: '#f8fafc',
+                                            color: '#475569',
+                                            border: '1.5px solid #cbd5e1',
+                                            padding: '1rem 1.5rem',
+                                            borderRadius: '1rem',
+                                            fontSize: '1rem',
+                                            fontWeight: '600',
+                                            cursor: pending ? 'wait' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.5rem',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        <i className="bi bi-file-earmark-lock"></i>
+                                        Save as Private Draft
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        disabled={pending}
+                                        onClick={() => updateRecipe('public')}
+                                        style={{
+                                            flex: 1,
+                                            minWidth: '200px',
+                                            ...buttonStyle
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!pending) {
+                                                Object.assign(e.target.style, buttonHoverStyle);
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!pending) {
+                                                e.target.style.transform = 'translateY(0)';
+                                                e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
+                                            }
+                                        }}
+                                    >
+                                        {pending && <div style={spinnerStyle}></div>}
+                                        <i className="bi bi-globe me-2"></i>
+                                        {originalRecipe.visibility === 'public' ? 'Save Published Changes' : 'Publish Variation'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    style={buttonStyle}
+                                    disabled={pending}
+                                    onMouseEnter={(e) => {
+                                        if (!pending) {
+                                            Object.assign(e.target.style, buttonHoverStyle);
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!pending) {
+                                            e.target.style.transform = 'translateY(0)';
+                                            e.target.style.boxShadow = '0 10px 25px rgba(242, 117, 10, 0.3)';
+                                        }
+                                    }}
+                                >
+                                    {pending && <div style={spinnerStyle}></div>}
+                                    <i className={`bi ${pending ? 'bi-hourglass-split' : 'bi-check-circle'} me-2`}></i>
+                                    {pending ? 'Updating Recipe...' : 'Update Recipe'}
+                                </button>
+                            )}
                         </form>
                     </div>
                 </div>

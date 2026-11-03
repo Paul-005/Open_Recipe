@@ -157,21 +157,38 @@ export default function Navbar() {
               Recipes
             </div>
             {authState && (
-              <div
-                style={navLinkStyle}
-                onClick={() => navigate("/content-editing")}
-                onMouseEnter={(e) => {
-                  e.target.style.color = navLinkHoverStyle.color;
-                  e.target.style.background = navLinkHoverStyle.background;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = navLinkStyle.color;
-                  e.target.style.background = 'transparent';
-                }}
-              >
-                <i className="bi bi-plus-circle me-2"></i>
-                Post Recipe
-              </div>
+              <>
+                <div
+                  style={navLinkStyle}
+                  onClick={() => navigate("/content-editing")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = navLinkHoverStyle.color;
+                    e.target.style.background = navLinkHoverStyle.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = navLinkStyle.color;
+                    e.target.style.background = 'transparent';
+                  }}
+                >
+                  <i className="bi bi-plus-circle me-2"></i>
+                  Post Recipe
+                </div>
+                <div
+                  style={navLinkStyle}
+                  onClick={() => navigate("/my-forks")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = navLinkHoverStyle.color;
+                    e.target.style.background = navLinkHoverStyle.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = navLinkStyle.color;
+                    e.target.style.background = 'transparent';
+                  }}
+                >
+                  <i className="bi bi-diagram-2 me-2"></i>
+                  My Forks
+                </div>
+              </>
             )}
           </div>
 
@@ -283,16 +300,28 @@ export default function Navbar() {
               Recipes
             </div>
             {authState && (
-              <div
-                style={navLinkStyle}
-                onClick={() => {
-                  navigate("/content-editing");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <i className="bi bi-plus-circle me-2"></i>
-                Post Recipe
-              </div>
+              <>
+                <div
+                  style={navLinkStyle}
+                  onClick={() => {
+                    navigate("/content-editing");
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <i className="bi bi-plus-circle me-2"></i>
+                  Post Recipe
+                </div>
+                <div
+                  style={navLinkStyle}
+                  onClick={() => {
+                    navigate("/my-forks");
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <i className="bi bi-diagram-2 me-2"></i>
+                  My Forks
+                </div>
+              </>
             )}
 
             <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />

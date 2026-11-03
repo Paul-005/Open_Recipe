@@ -3,9 +3,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Recipe Card Component
-const RecipeCard = ({ data }) => {
+const RecipeCard = ({ data, onFork, isForking }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const isFork = Boolean(data.isFork || data.sourceRecipeId);
+
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isMyRecipe = Boolean(
+    currentUser?._id &&
+    data.user_id &&
+    (currentUser._id === data.user_id ||
+      currentUser._id === data.user_id?._id ||
+      currentUser.id === data.user_id)
+  );
 
   const cardStyle = {
     background: 'white',
@@ -14,7 +24,7 @@ const RecipeCard = ({ data }) => {
     boxShadow: isHovered ? '0 25px 50px rgba(0, 0, 0, 0.15)' : '0 10px 25px rgba(0, 0, 0, 0.08)',
     transition: 'all 0.4s ease',
     transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
-    border: '1px solid rgba(0, 0, 0, 0.05)',
+    border: isFork ? '1.5px solid rgba(242, 117, 10, 0.3)' : '1px solid rgba(0, 0, 0, 0.05)',
     cursor: 'pointer'
   };
 
@@ -53,8 +63,8 @@ const RecipeCard = ({ data }) => {
   const buttonStyle = {
     background: isHovered ? 'linear-gradient(135deg, #f2750a, #ea580c)' : '#f8fafc',
     color: isHovered ? 'white' : '#475569',
-    border: 'none',
-    padding: '0.75rem 1.5rem',
+    border: '1px solid #e2e8f0',
+    padding: '0.7rem 1.25rem',
     borderRadius: '0.75rem',
     fontWeight: '600',
     cursor: 'pointer',
@@ -65,17 +75,52 @@ const RecipeCard = ({ data }) => {
     gap: '0.5rem'
   };
 
+  const forkCardButtonStyle = {
+    background: 'linear-gradient(135deg, #fff7ed, #ffedd5)',
+    color: '#ea580c',
+    border: '1.5px solid #fed7aa',
+    padding: '0.7rem 1.15rem',
+    borderRadius: '0.75rem',
+    fontWeight: '700',
+    cursor: isForking ? 'not-allowed' : 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.4rem',
+    boxShadow: '0 2px 4px rgba(234, 88, 12, 0.08)'
+  };
+
   const badgeStyle = {
     position: 'absolute',
     top: '1rem',
     right: '1rem',
-    background: 'rgba(242, 117, 10, 0.9)',
+    background: 'rgba(242, 117, 10, 0.95)',
     color: 'white',
-    padding: '0.5rem 1rem',
+    padding: '0.4rem 0.9rem',
     borderRadius: '2rem',
-    fontSize: '0.875rem',
+    fontSize: '0.8rem',
     fontWeight: '600',
-    backdropFilter: 'blur(10px)'
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+  };
+
+  const forkBadgeStyle = {
+    position: 'absolute',
+    top: '1rem',
+    right: '1rem',
+    background: 'rgba(255, 255, 255, 0.95)',
+    color: '#ea580c',
+    border: '1px solid rgba(234, 88, 12, 0.3)',
+    padding: '0.4rem 0.9rem',
+    borderRadius: '2rem',
+    fontSize: '0.8rem',
+    fontWeight: '700',
+    backdropFilter: 'blur(10px)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.35rem',
+    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.15)'
   };
 
   return (
@@ -84,8 +129,8 @@ const RecipeCard = ({ data }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {data.thumbnail && (
-        <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }}>
+        {data.thumbnail ? (
           <img
             src={data.thumbnail}
             alt={data.recipeName}
@@ -94,25 +139,123 @@ const RecipeCard = ({ data }) => {
               transform: isHovered ? 'scale(1.05)' : 'scale(1)'
             }}
           />
-          <div style={badgeStyle}>
-            Recipe
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '180px',
+              background: '#f8fafc',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#cbd5e1',
+              fontSize: '3rem'
+            }}
+          >
+            <i className="bi bi-card-image"></i>
           </div>
+        )}
+
+        <div style={isFork ? forkBadgeStyle : badgeStyle}>
+          {isFork ? (
+            <>
+              <i className="bi bi-diagram-2"></i>
+              Community variation
+            </>
+          ) : (
+            'Recipe'
+          )}
         </div>
-      )}
+      </div>
 
       <div style={contentStyle}>
+        {isFork && data.variationTitle && (
+          <div
+            style={{
+              fontSize: '0.8rem',
+              fontWeight: '700',
+              color: '#ea580c',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem'
+            }}
+          >
+            <i className="bi bi-tag-fill" style={{ fontSize: '0.7rem' }}></i>
+            {data.variationTitle}
+          </div>
+        )}
+
         <h3 style={titleStyle}>{data.recipeName}</h3>
+
+        {/* Author & Attribution info */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.85rem', color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <i className="bi bi-person-circle" style={{ color: '#ea580c' }}></i>
+            <span>{isMyRecipe ? "You (Your Recipe)" : (data.authorName ? `by ${data.authorName}` : 'by Community Chef')}</span>
+          </span>
+          {data.cookingTime && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, fontWeight: 500 }}>
+              <i className="bi bi-clock"></i>
+              {data.cookingTime}
+            </span>
+          )}
+        </div>
+
+        {isFork && data.originalRecipeName && (
+          <div style={{ fontSize: '0.8rem', color: '#ea580c', marginBottom: '0.75rem', fontWeight: 600 }}>
+            <i className="bi bi-diagram-2 me-1"></i>
+            Forked from {data.originalRecipeName}
+          </div>
+        )}
+
         <p style={descriptionStyle}>
           {Array.isArray(data.RecipeContent) ? data.RecipeContent.join(". ") : data.RecipeContent}
         </p>
 
-        <button
-          style={buttonStyle}
-          onClick={() => navigate(`/recipe/${data._id}`)}
-        >
-          <i className="bi bi-eye"></i>
-          View Recipe
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+          <button
+            style={{ ...buttonStyle, flex: 1 }}
+            onClick={() => navigate(`/recipe/${data._id}`)}
+          >
+            <i className="bi bi-eye"></i>
+            View
+          </button>
+          <button
+            style={forkCardButtonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFork(data._id);
+            }}
+            disabled={isForking}
+            onMouseEnter={(e) => {
+              if (!isForking) {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #f2750a, #ea580c)';
+                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.borderColor = '#ea580c';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isForking) {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #fff7ed, #ffedd5)';
+                e.currentTarget.style.color = '#ea580c';
+                e.currentTarget.style.borderColor = '#fed7aa';
+              }
+            }}
+            title={isMyRecipe ? "Fork this recipe to create another variation" : `Fork this recipe by ${data.authorName || 'chef'} to make your own variation`}
+          >
+            {isForking ? (
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            ) : (
+              <>
+                <i className="bi bi-diagram-2"></i>
+                Fork
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -123,6 +266,36 @@ export default function Recipes() {
   const [RecipesData, setRecipesData] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [forkingId, setForkingId] = useState(null);
+  const [forkError, setForkError] = useState("");
+
+  const handleFork = async (recipeId) => {
+    if (!localStorage.getItem("jwt")) {
+      navigate("/login");
+      return;
+    }
+    setForkingId(recipeId);
+    setForkError("");
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/recipes/${recipeId}/fork`,
+        {},
+        {
+          headers: {
+            token: localStorage.getItem("jwt"),
+          },
+        }
+      );
+      navigate(`/edit-recipe/${res.data.forkId}`);
+    } catch (err) {
+      setForkError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fork recipe. Please try again."
+      );
+      setForkingId(null);
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -422,12 +595,44 @@ export default function Recipes() {
               </div>
             )}
 
+            {/* Fork Error Alert */}
+            {forkError && (
+              <div
+                style={{
+                  background: "#fee2e2",
+                  color: "#dc2626",
+                  border: "1px solid #fca5a5",
+                  padding: "0.9rem 1.25rem",
+                  borderRadius: "1rem",
+                  marginBottom: "1.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <i className="bi bi-exclamation-triangle"></i>
+                  <span>{forkError}</span>
+                </div>
+                <button
+                  onClick={() => setForkError("")}
+                  style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: "1.2rem" }}
+                >
+                  &times;
+                </button>
+              </div>
+            )}
+
             {/* Recipe Grid */}
             {!loading && RecipesData.length > 0 && (
               <div className="row g-4">
-                {RecipesData.map((data) => (
+                {RecipesData.filter((r) => r.visibility !== "private").map((data) => (
                   <div key={data._id} className="col-lg-4 col-md-6">
-                    <RecipeCard data={data} />
+                    <RecipeCard
+                      data={data}
+                      onFork={handleFork}
+                      isForking={forkingId === data._id}
+                    />
                   </div>
                 ))}
               </div>
