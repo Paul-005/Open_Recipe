@@ -97,15 +97,28 @@ export default function EditRecipePage() {
             setVisibility(recipe.visibility || (forkDetected ? "private" : "public"));
             setSourceRecipeInfo(recipe.sourceRecipeInfo || null);
 
-            // Verify ownership
+            // Verify ownership: Match by ID or Email
             const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
             const currentUserId = localStorage.getItem("userId") || currentUser.id || currentUser._id;
             const recipeOwnerId = recipe.user_id?._id || recipe.user_id;
+            const currentUserEmail = currentUser.email || localStorage.getItem("username");
+            const recipeEmail = recipe.email || (recipe.author && recipe.author[0]?.email);
 
-            if (currentUserId && recipeOwnerId) {
-                if (currentUserId.toString() !== recipeOwnerId.toString()) {
-                    setIsOwner(false);
-                }
+            const emailMatches = Boolean(
+                currentUserEmail &&
+                recipeEmail &&
+                currentUserEmail.toLowerCase() === recipeEmail.toLowerCase()
+            );
+            const idMatches = Boolean(
+                currentUserId &&
+                recipeOwnerId &&
+                currentUserId.toString() === recipeOwnerId.toString()
+            );
+
+            if (emailMatches || idMatches) {
+                setIsOwner(true);
+            } else if (currentUserId && recipeOwnerId) {
+                setIsOwner(false);
             }
 
             setLoading(false);
@@ -451,48 +464,84 @@ export default function EditRecipePage() {
                 <div className="container">
                     <div style={{ ...formContainerStyle, textAlign: 'center', padding: '3.5rem 2rem' }}>
                         <div style={{
-                            width: '70px',
-                            height: '70px',
+                            width: '75px',
+                            height: '75px',
                             borderRadius: '50%',
-                            background: '#fee2e2',
-                            color: '#dc2626',
+                            background: '#ffedd5',
+                            color: '#ea580c',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '2rem',
+                            fontSize: '2.2rem',
                             margin: '0 auto 1.5rem auto'
                         }}>
-                            <i className="bi bi-shield-lock"></i>
+                            <i className="bi bi-diagram-2"></i>
                         </div>
-                        <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#0f172a', marginBottom: '1rem' }}>
-                            Permission Denied
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#0f172a', marginBottom: '0.75rem' }}>
+                            Fork This Recipe to Edit Your Own Twist
                         </h2>
-                        <p style={{ color: '#64748b', maxWidth: '520px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
-                            You do not have permission to edit this recipe. You can only modify recipes or variations that you own.
+                        <p style={{ color: '#64748b', maxWidth: '520px', margin: '0 auto 1.5rem auto', lineHeight: '1.6' }}>
+                            This recipe belongs to {originalRecipe.authorName ? <strong>{originalRecipe.authorName}</strong> : "another community chef"}.
+                            To preserve the original, fork it to your personal kitchen so you can freely customize ingredients, cooking steps, and variation notes.
                         </p>
+                        {error && (
+                            <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', maxWidth: '520px', margin: '0 auto 1.5rem auto' }}>
+                                {error}
+                            </div>
+                        )}
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={handleForkAndEdit}
+                                disabled={forking}
+                                style={{
+                                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '0.85rem 1.75rem',
+                                    borderRadius: '0.75rem',
+                                    fontWeight: '700',
+                                    fontSize: '1rem',
+                                    cursor: forking ? 'not-allowed' : 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    boxShadow: '0 4px 15px rgba(242, 117, 10, 0.35)'
+                                }}
+                            >
+                                {forking ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                        Forking to your kitchen...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="bi bi-diagram-2"></i>
+                                        Fork &amp; Edit My Variation
+                                    </>
+                                )}
+                            </button>
                             <button
                                 onClick={() => navigate(`/recipe/${id}`)}
                                 style={{
                                     background: 'white',
                                     color: '#0f172a',
                                     border: '1px solid #cbd5e1',
-                                    padding: '0.75rem 1.5rem',
+                                    padding: '0.85rem 1.5rem',
                                     borderRadius: '0.75rem',
                                     fontWeight: '600',
                                     cursor: 'pointer'
                                 }}
                             >
                                 <i className="bi bi-arrow-left me-2"></i>
-                                Back to Recipe
+                                View Original Recipe
                             </button>
                             <button
                                 onClick={() => navigate('/recipes')}
                                 style={{
-                                    background: 'linear-gradient(135deg, #f2750a, #ea580c)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '0.75rem 1.5rem',
+                                    background: '#f8fafc',
+                                    color: '#475569',
+                                    border: '1px solid #e2e8f0',
+                                    padding: '0.85rem 1.5rem',
                                     borderRadius: '0.75rem',
                                     fontWeight: '600',
                                     cursor: 'pointer'
